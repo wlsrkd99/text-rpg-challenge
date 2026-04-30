@@ -19,8 +19,10 @@ namespace TextRPG
 
 		public:
 			Character() {};
-			
+
 			const std::string& GetName() const;
+			int GetMaxHP() const;
+			int GetMaxMP() const;
 			int GetHP() const;
 			int GetMP() const;
 			int GetAttack() const;
