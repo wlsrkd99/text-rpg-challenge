@@ -31,91 +31,44 @@ namespace TextRPG
 		return input;
 	}
 
-	void UIManager::GetTwoIntsInput(const std::string& prompt, int& val1, int& val2)
-	{
-		while (true)
-		{
-			std::cout << prompt;
-			std::cin >> val1 >> val2;
-			if (std::cin.fail())
-			{
-				std::cout << "Invalid input. Please enter two integers." << std::endl;
-				std::cin.clear();
-				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-			}
-			else
-			{
-				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-				break;
-			}
-		}
-	}
-
 	void UIManager::PrintPlayerStats(const Player& player)
 	{
-		// 1. 출력용 문자열 생성
-		std::string hp_display = std::to_string(player.GetStat(EStatType::Hp)) + "/" + std::to_string(player.GetMaxHP());
-		std::string mp_display = std::to_string(player.GetStat(EStatType::Mp)) + "/" + std::to_string(player.GetMaxMP());
-		std::string atk_display = std::to_string(player.GetStat(EStatType::Atk));
-		std::string def_display = std::to_string(player.GetStat(EStatType::Def));
+		const int LABEL_WIDTH = 10;
+		const int VALUE_WIDTH = 12;
+		const std::string SEPARATOR((LABEL_WIDTH + VALUE_WIDTH) * 2, '=');
 
-#if __cplusplus >= 202002L
-		std::cout << "========================================" << std::endl;
-		std::cout << std::format(" {:<}'s Stats\n", player.GetName());
-		std::cout << "========================================" << std::endl;
-		std::cout << std::format("{:<10}{:>10} {:<10}{:>10}\n", " HP:", hp_display, " MP : ", mp_display);
-		std::cout << std::format("{:<10}{:>10} {:<10}{:>10}\n", " Attack:", atk_display, " Defense:", def_display);
-		std::cout << "========================================" << std::endl;
-#else
-		// 2. 가장 긴 데이터의 길이를 찾아 너비 결정
-		size_t max_val_len = std::max({ hp_display.length(), mp_display.length(), atk_display.length(), def_display.length(), (size_t)10 });
-
-		int label_width = 10;
-		int value_width = static_cast<int>(max_val_len) + 2;
-		int total_line_width = (label_width + value_width) * 2;
-
-		// 3. 출력
-		std::string separator(total_line_width, '=');
-		std::cout << separator << std::endl;
+		std::cout << SEPARATOR << std::endl;
 		std::cout << " " << player.GetName() << "'s Stats" << std::endl;
-		std::cout << separator << std::endl;
+		std::cout << SEPARATOR << std::endl;
 
-		// HP & MP
-		std::cout << std::left << std::setw(label_width) << " HP:"
-			<< std::right << std::setw(value_width) << hp_display
-			<< std::left << std::setw(label_width) << "  MP:"
-			<< std::right << std::setw(value_width) << mp_display << std::endl;
+		// HP and MP
+		std::string hp_display = std::to_string(player.GetCurrentHP()) + "/" + std::to_string(player.GetMaxHP());
+		std::string mp_display = std::to_string(player.GetCurrentMP()) + "/" + std::to_string(player.GetMaxMP());
 
-		// ATK & DEF
-		std::cout << std::left << std::setw(label_width) << " Attack:"
-			<< std::right << std::setw(value_width) << atk_display
-			<< std::left << std::setw(label_width) << "  Defense:"
-			<< std::right << std::setw(value_width) << def_display << std::endl;
-		std::cout << separator << std::endl;
-#endif
+		std::cout << std::left << std::setw(LABEL_WIDTH) << " HP:"
+			<< std::right << std::setw(VALUE_WIDTH) << hp_display
+			<< std::left << std::setw(LABEL_WIDTH) << "  MP:"
+			<< std::right << std::setw(VALUE_WIDTH) << mp_display << std::endl;
+
+		// Physical Stats
+		std::cout << std::left << std::setw(LABEL_WIDTH) << " P. Atk:"
+			<< std::right << std::setw(VALUE_WIDTH) << player.GetPAtk()
+			<< std::left << std::setw(LABEL_WIDTH) << "  P. Def:"
+			<< std::right << std::setw(VALUE_WIDTH) << player.GetPDef() << std::endl;
+
+		// Magical Stats
+		std::cout << std::left << std::setw(LABEL_WIDTH) << " M. Atk:"
+			<< std::right << std::setw(VALUE_WIDTH) << player.GetMAtk()
+			<< std::left << std::setw(LABEL_WIDTH) << "  M. Def:"
+			<< std::right << std::setw(VALUE_WIDTH) << player.GetMDef() << std::endl;
+
+		// Speed
+		std::cout << std::left << std::setw(LABEL_WIDTH) << " Speed:"
+			<< std::right << std::setw(VALUE_WIDTH) << player.GetSpeed() << std::endl;
+
+		std::cout << SEPARATOR << std::endl;
 	}
-
-	int UIManager::GetIntegerInput(const std::string& prompt)
-	{
-		int choice;
-		while (true)
-		{
-			std::cout << prompt;
-			std::cin >> choice;
-			if (std::cin.fail())
-			{
-				std::cout << "잘못된 입력입니다. 정수를 입력해주세요." << std::endl;
-				std::cin.clear();
-				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-			}
-			else
-			{
-				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-				return choice;
-			}
-		}
-	}
-
+	
 	void UIManager::PrintUpgradeMenu()
 	{
 		std::cout << "============================================" << std::endl;

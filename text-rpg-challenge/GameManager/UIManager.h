@@ -1,6 +1,9 @@
 #pragma once
 
 #include <string>
+#include <iostream>
+#include <limits>
+
 #include "../Unit/Player/Player.h"
 
 namespace TextRPG
@@ -20,14 +23,32 @@ namespace TextRPG
 		/** @brief 프롬프트를 띄우고 사용자로부터 문자열을 입력받습니다. */
 		std::string GetStringInput(const std::string& prompt);
 
-		/** @brief 프롬프트를 띄우고 사용자로부터 정수 2개를 입력받습니다. */
-		void GetTwoIntsInput(const std::string& prompt, int& val1, int& val2);
+		/** @brief 프롬프트를 띄우고 사용자로부터 특정 타입의 값들을 입력받습니다. */
+		template<typename... Args>
+		void GetInputs(const std::string& prompt, Args&... args)
+		{
+			while (true)
+			{
+				std::cout << prompt;
+				using expander = int[];
+				(void)expander{ 0, ((void)(std::cin >> args), 0)... };
+
+				if (std::cin.fail())
+				{
+					std::cout << "Invalid input. Please enter valid values." << std::endl;
+					std::cin.clear();
+					std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				}
+				else
+				{
+					std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+					break;
+				}
+			}
+		}
 
 		/** @brief 플레이어의 현재 스탯을 형식에 맞게 출력합니다. */
 		void PrintPlayerStats(const Player& player);
-
-		/** @brief 프롬프트를 띄우고 사용자로부터 정수 1개를 입력받습니다. */
-		int GetIntegerInput(const std::string& prompt);
 
 		/** @brief 캐릭터 강화 메뉴를 출력합니다. */
 		void PrintUpgradeMenu();

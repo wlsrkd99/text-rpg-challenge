@@ -12,9 +12,7 @@ namespace TextRPG
 		User m_User;
 
 	public:
-		DungeonGameState() : m_User("DefaultPlayer", FStatContainer(100, 50, 10, 5)) {}
-		DungeonGameState(const std::string& playerName, const FStatContainer& playerStats)
-			: m_User(playerName, playerStats) { }
+		DungeonGameState() : m_User("Hero") { CurrentState = EGameState::GS_NONE; }
 
 		virtual void SaveData();
 		virtual void LoadData();
