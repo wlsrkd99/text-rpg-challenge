@@ -1,10 +1,5 @@
 #include <iostream>
-#include <limits>
 #include <iomanip>
-#include <sstream>
-#if __cplusplus >= 202002L
-#include <format> // C++20 이상에서 지원
-#endif
 
 #include "UIManager.h"
 #include "../Unit/Player/Player.h"
@@ -67,6 +62,16 @@ namespace TextRPG
 			<< std::right << std::setw(VALUE_WIDTH) << player.GetSpeed() << std::endl;
 
 		std::cout << SEPARATOR << std::endl;
+	}
+
+	void UIManager::PrintDefaultItem(const std::vector<std::pair<std::string, int>>& receivedItems)
+	{
+		std::cout << "=========You received Default Items!!=========" << std::endl;
+		for (const auto& item : receivedItems)
+		{
+			std::cout << "You received " << item.first << " " << item.second << " !!" << std::endl;
+		}
+		std::cout << "==============================================" << std::endl;
 	}
 	
 	void UIManager::PrintUpgradeMenu()

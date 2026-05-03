@@ -1,9 +1,8 @@
 #pragma once
 
 #include <string>
+#include <vector> // std::vector를 사용하기 위해 추가
 #include <iostream>
-#include <limits>
-
 #include "../Unit/Player/Player.h"
 
 namespace TextRPG
@@ -49,6 +48,9 @@ namespace TextRPG
 
 		/** @brief 플레이어의 현재 스탯을 형식에 맞게 출력합니다. */
 		void PrintPlayerStats(const Player& player);
+
+		/** @brief 기본 아이템을 출력합니다. */
+		void PrintDefaultItem(const std::vector<std::pair<std::string, int>>& receivedItems);
 
 		/** @brief 캐릭터 강화 메뉴를 출력합니다. */
 		void PrintUpgradeMenu();

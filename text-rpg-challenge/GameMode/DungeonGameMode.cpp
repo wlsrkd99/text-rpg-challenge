@@ -1,17 +1,18 @@
 #include "DungeonGameMode.h"
 #include "../Unit/Player/Player.h"
+#include "../Core/User.h"
+#include "../Item/Potion.h"
 #include "../GameState/DungeonGameState.h"
 #include <array>
-#include <algorithm>
 #include <vector>
 #include <string>
-#include <numeric>
 
 namespace TextRPG
 {
 	void DungeonGameMode::InitGame()
 	{
 		ProcessCharacterCreation();
+		ProcessReceiveDefaultItem();
 	}
 
 	void DungeonGameMode::Run()
@@ -46,10 +47,10 @@ namespace TextRPG
 				baseStats[static_cast<int>(EStatType::ST_Mana)]);
 
 			if (baseStats[static_cast<int>(EStatType::ST_Health)] + baseStats[static_cast<int>(EStatType::ST_Mana)] == 100) {
-				if (baseStats[static_cast<int>(EStatType::ST_Health)] > 0 && baseStats[static_cast<int>(EStatType::ST_Mana)] > 0) {
+				if (baseStats[static_cast<int>(EStatType::ST_Health)] > 10 && baseStats[static_cast<int>(EStatType::ST_Mana)] > 10) {
 					break;
 				}
-				m_UI->PrintMessage("Health and Mana must be positive values. Please try again.");
+				m_UI->PrintMessage("Health and Mana must be greater than 10. Please try again.");
 			} else {
 				m_UI->PrintMessage("The sum of Health and Mana must be exactly 100. Please try again.");
 			}
@@ -110,6 +111,27 @@ namespace TextRPG
 
 	void DungeonGameMode::ProcessReceiveDefaultItem()
 	{
+		DungeonGameState* gameState = dynamic_cast<DungeonGameState*>(m_State);
+		if (!gameState) return;
 
+		Inventory& inventory = gameState->GetUser().GetInventory();
+		std::vector<std::pair<std::string, int>> receivedItems;
+
+		// 체력 포션 지급
+		int hpPotionId = 101;
+		std::string hpPotionName = "Health Potion";
+		int hpPotionCount = 5;
+		inventory.AddItem(new Potion(hpPotionId, hpPotionName, EItemValueType::IVT_FLAT, 100, hpPotionCount));
+		receivedItems.push_back({hpPotionName, hpPotionCount});
+
+		// 마나 포션 지급
+		int mpPotionId = 111;
+		std::string mpPotionName = "Mana Potion";
+		int mpPotionCount = 5;
+		inventory.AddItem(new Potion(mpPotionId, mpPotionName, EItemValueType::IVT_FLAT, 50, mpPotionCount));
+		receivedItems.push_back({mpPotionName, mpPotionCount});
+
+		// 획득한 아이템 정보 출력
+		m_UI->PrintDefaultItem(receivedItems);
 	}
 }

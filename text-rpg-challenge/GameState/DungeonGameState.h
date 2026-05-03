@@ -17,7 +17,7 @@ namespace TextRPG
 		virtual void SaveData();
 		virtual void LoadData();
 
-		/** @brief 게임 상태 내의 메인 플레이어 객체 포인터를 반환합니다. */
+		User& GetUser() { return m_User; }
 		Player* GetPlayer() { return m_User.GetPlayer(); }
 	};
 }
