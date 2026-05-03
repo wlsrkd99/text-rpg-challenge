@@ -4,18 +4,14 @@
 
 namespace TextRPG
 {
-	namespace Unit
+	int Character::GetMaxHP() const { return m_BaseStats.MaxHp; }
+	int Character::GetMaxMP() const { return m_BaseStats.MaxMp; }
+	int Character::GetStat(EStatType stat) const
 	{
-		const std::string& Character::GetName() const
+		if (stat == EStatType::Hp || stat == EStatType::Mp || stat == EStatType::Atk || stat == EStatType::Def)
 		{
-			return m_Name;
+			return m_Stats[static_cast<int>(stat)];
 		}
-		
-		int Character::GetMaxHP() const { return m_MaxHp; }
-		int Character::GetMaxMP() const { return m_MaxMp; }
-		int Character::GetHP() const { return m_Hp; }
-		int Character::GetMP() const { return m_Mp; }
-		int Character::GetAttack() const { return m_Atk; }
-		int Character::GetDefense() const { return m_Def; }
+		return 0;
 	}
 }

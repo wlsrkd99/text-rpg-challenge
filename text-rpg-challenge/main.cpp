@@ -6,9 +6,11 @@
 
 int main()
 {
-    TextRPG::Manager::UIManager uiManager;
-    TextRPG::GameState::DungeonGameState dungeonGameState;
-    TextRPG::GameMode::DungeonGameMode dungeonGameMode;
+    using namespace TextRPG;
+
+    UIManager uiManager;
+    DungeonGameState dungeonGameState;
+    DungeonGameMode dungeonGameMode;
 
     dungeonGameMode.Setup(&dungeonGameState, &uiManager);
     dungeonGameMode.Run();

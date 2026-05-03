@@ -2,21 +2,24 @@
 
 #include "GameStateBase.h"
 #include "../Unit/Player/Player.h"
+#include "../Core/User.h"
 
 namespace TextRPG
 {
-	namespace GameState
+	class DungeonGameState : public GameStateBase
 	{
-		class DungeonGameState : public GameStateBase
-		{
-		private:
-			Unit::Player m_MainPlayer; // Player 객체를 직접 소유
-		public:
-			virtual void SaveData();
-			virtual void LoadData();
+	private:
+		User m_User;
 
-			/** @brief 게임 상태 내의 메인 플레이어 객체 포인터를 반환합니다. */
-			Unit::Player* GetPlayer();
-		};
-	}
+	public:
+		DungeonGameState() : m_User("DefaultPlayer", FStatContainer(100, 50, 10, 5)) {}
+		DungeonGameState(const std::string& playerName, const FStatContainer& playerStats)
+			: m_User(playerName, playerStats) { }
+
+		virtual void SaveData();
+		virtual void LoadData();
+
+		/** @brief 게임 상태 내의 메인 플레이어 객체 포인터를 반환합니다. */
+		Player* GetPlayer() { return m_User.GetPlayer(); }
+	};
 }

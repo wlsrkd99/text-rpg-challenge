@@ -7,16 +7,14 @@
 
 namespace TextRPG
 {
-	namespace GameState
+	class GameStateBase
 	{
-		class GameStateBase
-		{
-		protected:
-			Data::EGameState CurrentState = Data::EGameState::GS_NONE;
+	protected:
+		EGameState CurrentState = EGameState::GS_NONE;
 
-		public:
-			virtual void SaveData() = 0;
-			virtual void LoadData() = 0;
-		};
-	}
+	public:
+		GameStateBase() { }
+		virtual void SaveData() = 0;
+		virtual void LoadData() = 0;
+	};
 }
