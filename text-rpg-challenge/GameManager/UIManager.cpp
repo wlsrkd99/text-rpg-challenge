@@ -3,6 +3,7 @@
 
 #include "UIManager.h"
 #include "../Unit/Player/Player.h"
+#include "../Data/EStatType.h" // For EStatType in PrintStatDistributionUI
 
 namespace TextRPG
 {
@@ -32,9 +33,9 @@ namespace TextRPG
 		const int VALUE_WIDTH = 12;
 		const std::string SEPARATOR((LABEL_WIDTH + VALUE_WIDTH) * 2, '=');
 
-		std::cout << SEPARATOR << std::endl;
-		std::cout << " " << player.GetName() << "'s Stats" << std::endl;
-		std::cout << SEPARATOR << std::endl;
+		PrintMessage(SEPARATOR);
+		PrintMessage(" " + player.GetName() + "'s Stats");
+		PrintMessage(SEPARATOR);
 
 		// HP and MP
 		std::string hp_display = std::to_string(player.GetCurrentHP()) + "/" + std::to_string(player.GetMaxHP());
@@ -61,25 +62,56 @@ namespace TextRPG
 		std::cout << std::left << std::setw(LABEL_WIDTH) << " Speed:"
 			<< std::right << std::setw(VALUE_WIDTH) << player.GetSpeed() << std::endl;
 
-		std::cout << SEPARATOR << std::endl;
+		// Available Stat Points
+		std::cout << std::left << std::setw(LABEL_WIDTH) << " Points:"
+			<< std::right << std::setw(VALUE_WIDTH) << player.GetAvailableStatPoints() << std::endl;
+
+		PrintMessage(SEPARATOR);
 	}
 
 	void UIManager::PrintDefaultItem(const std::vector<std::pair<std::string, int>>& receivedItems)
 	{
-		std::cout << "=========You received Default Items!!=========" << std::endl;
+		PrintMessage("");
+		PrintMessage("========You received Default Items!!========");
 		for (const auto& item : receivedItems)
 		{
 			std::cout << "You received " << item.first << " " << item.second << " !!" << std::endl;
 		}
-		std::cout << "==============================================" << std::endl;
+		PrintMessage("============================================");
 	}
 	
-	void UIManager::PrintUpgradeMenu()
+	void UIManager::PrintUpgradeMenu(const Player& player)
 	{
-		std::cout << "============================================" << std::endl;
-		std::cout << "< Character Upgrade >" << std::endl;
-		std::cout << "1. HP UP    2. MP UP    3. Attack x2" << std::endl;
-		std::cout << "4. Defense x2  5. Show Stats  0. Start Game" << std::endl;
-		std::cout << "============================================" << std::endl;
+		PrintMessage("\n--- Character Upgrade Menu ---");
+		PrintPlayerStats(player);
+		PrintMessage("Available Stat Points: " + std::to_string(player.GetAvailableStatPoints()));
+		PrintMessage("1. Show Stat Effects");
+		PrintMessage("2. Upgrade Base Stats");
+		PrintMessage("0. Exit Upgrade Menu");
+		PrintMessage("============================================");
+	}
+
+	void UIManager::PrintStatEffects()
+	{
+		PrintMessage("\n--- Base Stat Effects ---");
+		const int STAT_NAME_WIDTH = 18;
+		std::cout << std::left << std::setw(STAT_NAME_WIDTH) << "Health:" << "Increases MaxHP (x5)" << std::endl;
+		std::cout << std::left << std::setw(STAT_NAME_WIDTH) << "Mana:" << "Increases MaxMP (x5)" << std::endl;
+		std::cout << std::left << std::setw(STAT_NAME_WIDTH) << "Endurance:" << "Increases MaxHP (x2), P.Def (x2)" << std::endl;
+		std::cout << std::left << std::setw(STAT_NAME_WIDTH) << "Strength:" << "Increases MaxHP (x1), P.Atk (x2)" << std::endl;
+		std::cout << std::left << std::setw(STAT_NAME_WIDTH) << "Agility:" << "Increases Speed (x1)" << std::endl;
+		std::cout << std::left << std::setw(STAT_NAME_WIDTH) << "Intelligence:" << "Increases MaxMP (x2), M.Atk (x2)" << std::endl;
+		std::cout << std::left << std::setw(STAT_NAME_WIDTH) << "Wisdom:" << "Increases MaxMP (x1), M.Def (x2)" << std::endl;
+		PrintMessage("============================================");
+	}
+
+	void UIManager::PrintStatDistributionUI(const std::vector<std::string>& statNames, const std::array<int, static_cast<int>(EStatType::ST_Count)>& baseStats, int remainingPoints)
+	{
+		PrintMessage("\nPoints left: " + std::to_string(remainingPoints));
+		PrintMessage("------------------------------------");
+		for (size_t i = 0; i < statNames.size(); ++i) {
+			PrintMessage(std::to_string(i + 1) + ". " + statNames[i] + ": " + std::to_string(baseStats[static_cast<int>(EStatType::ST_Endurance) + i]));
+		}
+		PrintMessage("------------------------------------");
 	}
 }

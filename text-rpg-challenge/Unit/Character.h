@@ -41,6 +41,9 @@ namespace TextRPG
 		void Initialize(const std::string& name, const std::array<int, static_cast<int>(EStatType::ST_Count)>& stats);
 
 		const std::string& GetName() const { return m_Name; }
+		const std::array<int, static_cast<int>(EStatType::ST_Count)>& GetBaseStats() const { return m_BaseStats; }
+		/** @brief 특정 기본 스탯 값을 가져옵니다. */
+		int GetBaseStat(EStatType stat) const;
 		int GetCurrentHP() const { return m_CurrentHP; }
 		int GetCurrentMP() const { return m_CurrentMP; }
 		int GetMaxHP() const;
@@ -50,8 +53,6 @@ namespace TextRPG
 		int GetMAtk() const { return m_MAtk; }
 		int GetMDef() const { return m_MDef; }
 		int GetSpeed() const { return m_Speed; }
-		/** @brief 특정 기본 스탯 값을 가져옵니다. */
-		int GetBaseStat(EStatType stat) const;
 
 		void SetName(const std::string& name) { m_Name = name; }
 		/** @brief 특정 기본 스탯을 설정하고 파생 스탯을 업데이트합니다. */

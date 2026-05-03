@@ -9,10 +9,10 @@ namespace TextRPG
 		m_MaxHP = (m_BaseStats[static_cast<int>(EStatType::ST_Health)] * 5) + (m_BaseStats[static_cast<int>(EStatType::ST_Endurance)] * 2) + (m_BaseStats[static_cast<int>(EStatType::ST_Strength)]);
 		m_MaxMP = (m_BaseStats[static_cast<int>(EStatType::ST_Mana)] * 5) + (m_BaseStats[static_cast<int>(EStatType::ST_Intelligence)] * 2) + (m_BaseStats[static_cast<int>(EStatType::ST_Wisdom)]);
 		m_Speed = m_BaseStats[static_cast<int>(EStatType::ST_Agility)];
-		m_PAtk = m_BaseStats[static_cast<int>(EStatType::ST_Strength)] * 2;
-		m_PDef = m_BaseStats[static_cast<int>(EStatType::ST_Endurance)] * 2;
-		m_MAtk = m_BaseStats[static_cast<int>(EStatType::ST_Intelligence)] * 2;
-		m_MDef = m_BaseStats[static_cast<int>(EStatType::ST_Wisdom)] * 2;
+		m_PAtk = 10 + m_BaseStats[static_cast<int>(EStatType::ST_Strength)] * 2;
+		m_PDef = 10 + m_BaseStats[static_cast<int>(EStatType::ST_Endurance)] * 2;
+		m_MAtk = 10 + m_BaseStats[static_cast<int>(EStatType::ST_Intelligence)] * 2;
+		m_MDef = 10 + m_BaseStats[static_cast<int>(EStatType::ST_Wisdom)] * 2;
 
 		m_CurrentHP = std::min(m_CurrentHP, m_MaxHP);
 		m_CurrentMP = std::min(m_CurrentMP, m_MaxMP);

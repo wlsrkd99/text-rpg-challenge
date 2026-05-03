@@ -53,6 +53,12 @@ namespace TextRPG
 		void PrintDefaultItem(const std::vector<std::pair<std::string, int>>& receivedItems);
 
 		/** @brief 캐릭터 강화 메뉴를 출력합니다. */
-		void PrintUpgradeMenu();
+		void PrintUpgradeMenu(const Player& player);
+
+		/** @brief 스탯 효과를 출력합니다. */
+		void PrintStatEffects();
+		
+		/** @brief 스탯 분배 UI를 출력합니다. */
+		void PrintStatDistributionUI(const std::vector<std::string>& statNames, const std::array<int, static_cast<int>(EStatType::ST_Count)>& baseStats, int remainingPoints);
 	};
 }
