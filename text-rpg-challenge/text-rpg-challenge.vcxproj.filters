@@ -33,10 +33,7 @@
     <ClInclude Include="Item\Inventory.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Data\EItemType.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Data\EJobType.h">
+    <ClInclude Include="Enums\EItemType.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Unit\Monster\Monster.h">
@@ -45,13 +42,67 @@
     <ClInclude Include="GameState\GameStateBase.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Data\EGameState.h">
+    <ClInclude Include="Enums\EGameState.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GameMode\DungeonGameMode.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GameState\DungeonGameState.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\User.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Enums\EItemGrade.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Enums\EItemValueType.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Enums\EStatType.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Item\Potion.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Enums\EJobType.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Enums\EDerivedStatType.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\JobData.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\StatData.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\BaseStatBonus.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\StatFormatting.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit\Skill\ISkill.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit\Player\AttackStrategy.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\EStatType.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit\Player\Archer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit\Player\Rogue.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit\Player\Warrior.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit\Player\Mage.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -87,6 +138,33 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="GameState\DungeonGameState.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\User.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Item\Potion.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Data\JobData.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Data\StatData.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\StatFormatting.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Unit\Player\Archer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Unit\Player\Rogue.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Unit\Player\Warrior.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Unit\Player\Mage.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

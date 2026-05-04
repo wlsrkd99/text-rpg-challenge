@@ -4,25 +4,72 @@
 #include "../Enums/EStatType.h"
 #include "../Item/Potion.h"
 #include "../Utils/StatFormatting.h"
-#include "../GameState/DungeonGameState.h"
 #include <array>
 #include <vector>
 #include <string>
 
 namespace TextRPG
 {
+
+	void DungeonGameMode::Run()
+	{
+		bool isGameOver = false;
+		while (!isGameOver)
+		{
+			switch (m_State->GetCurrentState())
+			{
+			case EGameState::GS_NONE:
+				InitGame();
+				ProcessClassChange();
+				m_State->SetCurrentState(EGameState::GS_STAT_UPGRADE);
+				break;
+			case EGameState::GS_STAT_UPGRADE:
+				ProcessStatsUpgrade();
+				m_State->SetCurrentState(EGameState::GS_TOWN);
+				break;
+			case EGameState::GS_TOWN:
+				
+				break;
+			case EGameState::GS_BATTLE:
+			case EGameState::GS_INVENTORY:
+			case EGameState::GS_SHOP:
+			case EGameState::GS_DUNGEON_EXPLORE:
+			case EGameState::GS_GAMEOVER:
+				isGameOver = true;
+				break;
+			}
+		}
+	}
+
 	void DungeonGameMode::InitGame()
 	{
 		ProcessCharacterCreation();
-		// auto receivedItems = ProcessReceiveDefaultItem();
 		m_UI->PrintDefaultItem(ProcessReceiveDefaultItem());
 	}
 
+	void DungeonGameMode::ProcessCharacterCreation()
+	{
+		// 1. 타이틀 출력
+		m_UI->PrintTitle("[ Dungeon Escape Text RPG ]");
+
+		// 2. 플레이어 이름 입력
+		std::string name = m_UI->GetStringInput("Enter your hero's name: ");
+
+		// 3. 스탯 분배
+		std::array<int, static_cast<int>(EStatType::ST_Count)> baseStats = m_UI->PerformInitialStatDistribution();
+
+		// 4. Player 객체에 정보 설정
+		Player* player = m_State->GetPlayer();
+		player->Initialize(name, baseStats);
+
+		// 5. 최종 스탯 출력
+		m_UI->PrintPlayerStats(*player);
+	}
+
+
 	void DungeonGameMode::ProcessClassChange()
 	{
-		DungeonGameState* gameState = dynamic_cast<DungeonGameState*>(m_State);
-		if (!gameState) return;
-		Player* player = gameState->GetPlayer();
+		Player* player = m_State->GetPlayer();
 
 		if (player->GetJob() != EJobType::JT_NOVICE)
 		{
@@ -42,45 +89,11 @@ namespace TextRPG
 		m_UI->PrintPlayerStats(*player);
 	}
 
-	void DungeonGameMode::Run()
-	{
-		InitGame();
-		ProcessClassChange();
-
-		bool isGameOver = false;
-		ProcessCharacterUpgrade();
-		while (!isGameOver)
-		{
-
-		}
-	}
-
-	void DungeonGameMode::ProcessCharacterCreation()
-	{
-		// 1. 타이틀 출력
-		m_UI->PrintTitle("[ Dungeon Escape Text RPG ]");
-
-		// 2. 플레이어 이름 입력
-		std::string name = m_UI->GetStringInput("Enter your hero's name: ");
-
-		// 3. 스탯 분배
-		std::array<int, static_cast<int>(EStatType::ST_Count)> baseStats = m_UI->PerformInitialStatDistribution();
-
-		// 4. Player 객체에 정보 설정
-		DungeonGameState* gameState = dynamic_cast<DungeonGameState*>(m_State);
-		Player* player = gameState->GetPlayer();
-		player->Initialize(name, baseStats);
-
-		// 5. 최종 스탯 출력
-		m_UI->PrintPlayerStats(*player);
-	}
-
 	std::vector<std::pair<std::string, int>> DungeonGameMode::ProcessReceiveDefaultItem()
 	{
-		DungeonGameState* gameState = dynamic_cast<DungeonGameState*>(m_State);
-		if (!gameState) return {};
+		if (!m_State) return {};
 
-		Inventory& inventory = gameState->GetUser().GetInventory();
+		Inventory& inventory = m_State->GetUser().GetInventory();
 		std::vector<std::pair<std::string, int>> receivedItems;
 
 		// 체력 포션 지급
@@ -100,12 +113,11 @@ namespace TextRPG
 		return receivedItems;
 	}
 
-	void DungeonGameMode::ProcessCharacterUpgrade()
+	void DungeonGameMode::ProcessStatsUpgrade()
 	{
-		DungeonGameState* gameState = dynamic_cast<DungeonGameState*>(m_State);
-		if (!gameState) return;
+		if (!m_State) return;
 
-		Player* player = gameState->GetPlayer();
+		Player* player = m_State->GetPlayer();
 
 		while (true)
 		{

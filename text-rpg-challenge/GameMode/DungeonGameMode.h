@@ -2,7 +2,6 @@
 
 #include "GameModeBase.h"
 #include "../GameManager/UIManager.h"
-#include "../GameState/DungeonGameState.h"
 #include <functional>
 
 namespace TextRPG
@@ -25,10 +24,10 @@ namespace TextRPG
 		std::vector<std::pair<std::string, int>> ProcessReceiveDefaultItem();
 
 		/** @brief 캐릭터 스탯 강화 과정을 시작합니다. */
-		void ProcessCharacterUpgrade();
+		void ProcessStatsUpgrade();
 
-		virtual void InitGame();
 		virtual void Run();
+		virtual void InitGame();
 
 	private:
 		/** @brief 플레이어의 기본 스탯 분배 과정을 처리합니다. */

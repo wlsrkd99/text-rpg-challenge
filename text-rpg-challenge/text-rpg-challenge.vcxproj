@@ -19,9 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Data\EGameState.h" />
-    <ClInclude Include="Data\EItemType.h" />
-    <ClInclude Include="Data\EJobType.h" />
+    <ClInclude Include="Data\BaseStatBonus.h" />
+    <ClInclude Include="Data\EStatType.h" />
+    <ClInclude Include="Enums\EDerivedStatType.h" />
+    <ClInclude Include="Enums\EGameState.h" />
+    <ClInclude Include="Enums\EItemGrade.h" />
+    <ClInclude Include="Enums\EItemType.h" />
+    <ClInclude Include="Enums\EItemValueType.h" />
+    <ClInclude Include="Enums\EJobType.h" />
+    <ClInclude Include="Enums\EStatType.h" />
+    <ClInclude Include="Data\JobData.h" />
+    <ClInclude Include="Data\StatData.h" />
     <ClInclude Include="GameState\DungeonGameState.h" />
     <ClInclude Include="GameMode\DungeonGameMode.h" />
     <ClInclude Include="GameMode\GameModeBase.h" />
@@ -29,11 +37,18 @@
     <ClInclude Include="GameState\GameStateBase.h" />
     <ClInclude Include="Item\Inventory.h" />
     <ClInclude Include="Item\ItemBase.h" />
+    <ClInclude Include="Item\Potion.h" />
     <ClInclude Include="Unit\Monster\Monster.h" />
+    <ClInclude Include="Unit\Player\AttackStrategy.h" />
     <ClInclude Include="Unit\Player\Player.h" />
     <ClInclude Include="Unit\Character.h" />
+    <ClInclude Include="Core\User.h" />
+    <ClInclude Include="Unit\Skill\ISkill.h" />
+    <ClInclude Include="Utils\StatFormatting.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Data\JobData.cpp" />
+    <ClCompile Include="Data\StatData.cpp" />
     <ClCompile Include="GameState\DungeonGameState.cpp" />
     <ClCompile Include="GameMode\DungeonGameMode.cpp" />
     <ClCompile Include="main.cpp" />
@@ -42,9 +57,12 @@
     <ClCompile Include="GameState\GameStateBase.cpp" />
     <ClCompile Include="Item\Inventory.cpp" />
     <ClCompile Include="Item\ItemBase.cpp" />
+    <ClCompile Include="Item\Potion.cpp" />
     <ClCompile Include="Unit\Monster\Monster.cpp" />
     <ClCompile Include="Unit\Player\Player.cpp" />
     <ClCompile Include="Unit\Character.cpp" />
+    <ClCompile Include="Core\User.cpp" />
+    <ClCompile Include="Utils\StatFormatting.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
