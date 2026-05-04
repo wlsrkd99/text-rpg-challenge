@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Data/EGameState.h"
 #include "../Unit/Player/Player.h"
+#include "../Enums/EGameState.h"
 
 
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Data/EItemType.h"
-#include "../Data/EItemGrade.h"
+#include "../Enums/EItemType.h"
+#include "../Enums/EItemGrade.h"
 #include <string>
 
 namespace TextRPG

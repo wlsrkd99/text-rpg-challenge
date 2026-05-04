@@ -34,13 +34,13 @@ namespace TextRPG
 	{
 		switch (stat)
 		{
-		case EStatType::ST_Health: 			return "HP";
-		case EStatType::ST_Mana: 			return "MP";
-		case EStatType::ST_Endurance: 		return "";
+		case EStatType::ST_Health: 			return "Hp";
+		case EStatType::ST_Mana: 			return "Mp";
+		case EStatType::ST_Endurance: 		return "End";
 		case EStatType::ST_Strength: 		return "Str";
-		case EStatType::ST_Agility: 		return "Agility";
-		case EStatType::ST_Intelligence: 	return "Intelligence";
-		case EStatType::ST_Wisdom: 			return "Wisdom";
+		case EStatType::ST_Agility: 		return "Agi";
+		case EStatType::ST_Intelligence: 	return "Int";
+		case EStatType::ST_Wisdom: 			return "Wis	";
 		default: return "Unknown";
 		}
 	}

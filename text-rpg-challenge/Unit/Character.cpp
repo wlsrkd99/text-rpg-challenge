@@ -1,18 +1,44 @@
 #include "Character.h"
+#include "../Data/StatData.h"
 #include <algorithm>
 
 namespace TextRPG
 {
 	void Character::UpdateDerivedStats()
 	{
-		// 파생 스탯 계산 공식
-		m_MaxHP = (m_BaseStats[static_cast<int>(EStatType::ST_Health)] * 5) + (m_BaseStats[static_cast<int>(EStatType::ST_Endurance)] * 2) + (m_BaseStats[static_cast<int>(EStatType::ST_Strength)]);
-		m_MaxMP = (m_BaseStats[static_cast<int>(EStatType::ST_Mana)] * 5) + (m_BaseStats[static_cast<int>(EStatType::ST_Intelligence)] * 2) + (m_BaseStats[static_cast<int>(EStatType::ST_Wisdom)]);
-		m_Speed = m_BaseStats[static_cast<int>(EStatType::ST_Agility)];
-		m_PAtk = 10 + m_BaseStats[static_cast<int>(EStatType::ST_Strength)] * 2;
-		m_PDef = 10 + m_BaseStats[static_cast<int>(EStatType::ST_Endurance)] * 2;
-		m_MAtk = 10 + m_BaseStats[static_cast<int>(EStatType::ST_Intelligence)] * 2;
-		m_MDef = 10 + m_BaseStats[static_cast<int>(EStatType::ST_Wisdom)] * 2;
+		// 파생 스탯을 기본값으로 초기화
+		m_MaxHP = 0;
+		m_MaxMP = 0;
+		m_PAtk = 10;
+		m_PDef = 10;
+		m_MAtk = 10;
+		m_MDef = 10;
+		m_Speed = 0;
+
+		// StatData에 정의된 규칙에 따라 파생 스탯 계산
+		for (int i = 0; i < static_cast<int>(EStatType::ST_Count); ++i)
+		{
+			EStatType baseStatType = static_cast<EStatType>(i);
+			int baseStatValue = m_BaseStats[i];
+
+			auto it = BaseStatEffects.find(baseStatType);
+			if (it != BaseStatEffects.end())
+			{
+				for (const auto& effect : it->second)
+				{
+					switch (effect.DerivedStat)
+					{
+					case EDerivedStatType::MaxHP: m_MaxHP += baseStatValue * effect.Multiplier; break;
+					case EDerivedStatType::MaxMP: m_MaxMP += baseStatValue * effect.Multiplier; break;
+					case EDerivedStatType::PAtk:  m_PAtk += baseStatValue * effect.Multiplier; break;
+					case EDerivedStatType::PDef:  m_PDef += baseStatValue * effect.Multiplier; break;
+					case EDerivedStatType::MAtk:  m_MAtk += baseStatValue * effect.Multiplier; break;
+					case EDerivedStatType::MDef:  m_MDef += baseStatValue * effect.Multiplier; break;
+					case EDerivedStatType::Speed: m_Speed += baseStatValue * effect.Multiplier; break;
+					}
+				}
+			}
+		}
 
 		m_CurrentHP = std::min(m_CurrentHP, m_MaxHP);
 		m_CurrentMP = std::min(m_CurrentMP, m_MaxMP);
@@ -49,21 +75,47 @@ namespace TextRPG
 		}
 	}
 
-	void Character::TakeDamage(int damage)
+	void Character::Attack(Character& target)
 	{
+		int damage = std::max(1, GetPAtk() - target.GetPDef());
+		target.TakeDamage(damage);
+	}
+
+	bool Character::TakeDamage(int damage)
+	{
+		if (damage < 0) damage = 0;
 		m_CurrentHP -= damage;
 		if (m_CurrentHP < 0) m_CurrentHP = 0;
+		return m_CurrentHP == 0;
 	}
 
-	void Character::Heal(int amount)
+	int Character::RestoreHealth(int amount)
 	{
+		if (amount < 0) amount = 0;
+		int oldHP = m_CurrentHP;
 		m_CurrentHP += amount;
 		if (m_CurrentHP > m_MaxHP) m_CurrentHP = m_MaxHP;
+		return m_CurrentHP - oldHP;
 	}
 
-	void Character::UseMP(int amount)
+	bool Character::UseMP(int amount)
 	{
+		if (amount < 0) amount = 0;
+		if (m_CurrentMP < amount)
+		{
+			return false;
+		}
 		m_CurrentMP -= amount;
 		if (m_CurrentMP < 0) m_CurrentMP = 0;
+		return true;
+	}
+
+	int Character::RestoreMana(int amount)
+	{
+		if (amount < 0) amount = 0;
+		int oldMP = m_CurrentMP;
+		m_CurrentMP += amount;
+		if (m_CurrentMP > m_MaxMP) m_CurrentMP = m_MaxMP;
+		return m_CurrentMP - oldMP;
 	}
 }

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../Enums/EStatType.h"
 #include <string>
-#include "../Data/EStatType.h"
 #include <array>
 
 namespace TextRPG
@@ -19,11 +19,11 @@ namespace TextRPG
 		int m_CurrentMP;
 		int m_MaxHP;
 		int m_MaxMP;
-		int m_PAtk; // 물리 공격력
-		int m_PDef; // 물리 방어력
-		int m_MAtk; // 마법 공격력
-		int m_MDef; // 마법 방어력
-		int m_Speed; // 속도
+		int m_PAtk; 
+		int m_PDef; 
+		int m_MAtk; 
+		int m_MDef; 
+		int m_Speed;
 
 	private:
 		/** @brief 기본 스탯을 기반으로 파생 스탯을 다시 계산합니다. */
@@ -58,8 +58,10 @@ namespace TextRPG
 		/** @brief 특정 기본 스탯을 설정하고 파생 스탯을 업데이트합니다. */
 		void SetBaseStat(EStatType stat, int value);
 
-		virtual void TakeDamage(int damage);
-		virtual void Heal(int amount);
-		virtual void UseMP(int amount);
+		virtual void Attack(Character& target);
+		virtual bool TakeDamage(int damage);
+		virtual int RestoreHealth(int amount);
+		virtual bool UseMP(int amount);
+		virtual int RestoreMana(int amount);
 	};
 }

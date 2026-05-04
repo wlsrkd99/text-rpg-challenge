@@ -1,7 +1,7 @@
 #pragma once
 #include "ItemBase.h"
-#include "../Data/EItemType.h"
-#include "../Data/EItemValueType.h"
+#include "../Enums/EItemType.h"
+#include "../Enums/EItemValueType.h"
 #include "../Unit/Character.h"
 
 namespace TextRPG
