@@ -124,7 +124,7 @@ namespace TextRPG
 					m_UI->PrintMessage("You have no available stat points to spend.");
 					break;
 				}
-				_distributeBaseStats(player);
+				_handleDistributeBaseStats(player);
 				break;
 			case 0:
 				m_UI->PrintMessage("Exiting upgrade menu.");
@@ -136,7 +136,7 @@ namespace TextRPG
 		}
 	}
 
-	void DungeonGameMode::_distributeBaseStats(Player* player)
+	void DungeonGameMode::_handleDistributeBaseStats(Player* player)
 	{
 		m_UI->ShowStatDistribution(
 			[player]() { return player->GetAvailableStatPoints(); },

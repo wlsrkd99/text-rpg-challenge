@@ -32,7 +32,7 @@ namespace TextRPG
 
 	private:
 		/** @brief 플레이어의 기본 스탯 분배 과정을 처리합니다. */
-		void _distributeBaseStats(Player* player);
+		void _handleDistributeBaseStats(Player* player);
 
 	};
 }

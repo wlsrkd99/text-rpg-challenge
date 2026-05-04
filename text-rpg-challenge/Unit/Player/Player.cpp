@@ -29,7 +29,7 @@ namespace TextRPG
 	{
 		if (m_Job != EJobType::JT_NOVICE || newJob == EJobType::JT_NOVICE)
 		{
-			return; // Novice에서만 다른 직업으로 전직할 수 있습니다.
+			return;
 		}
 
 		m_Job = newJob;
@@ -43,7 +43,28 @@ namespace TextRPG
 			}
 		}
 
+		switch (newJob)
+		{
+			case EJobType::JT_WARRIOR: m_AttackStrategy = std::make_unique<WarriorAttackStrategy>(); break;
+			case EJobType::JT_ROGUE:   m_AttackStrategy = std::make_unique<RogueAttackStrategy>(); break;
+			case EJobType::JT_MAGE:    m_AttackStrategy = std::make_unique<MageAttackStrategy>(); break;
+			case EJobType::JT_ARCHER:  m_AttackStrategy = std::make_unique<ArcherAttackStrategy>(); break;
+			default: m_AttackStrategy = std::make_unique<NoviceAttackStrategy>(); break;
+		}
+
 		m_CurrentHP = GetMaxHP();
 		m_CurrentMP = GetMaxMP();
+	}
+
+	void Player::Attack(Character& target)
+	{
+		if (m_AttackStrategy)
+		{
+			m_AttackStrategy->ExecuteAttack(this, target);
+		}
+		else
+		{
+			Character::Attack(target);
+		}
 	}
 }
