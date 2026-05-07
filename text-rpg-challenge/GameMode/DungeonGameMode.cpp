@@ -187,7 +187,7 @@ namespace TextRPG
 					winData.EarnedGold = slime.GetDropGold();
 					if (slime.GetDropItem() != nullptr)
 					{
-						winData.Rewards.push_back(slime.GetDropItem());
+						winData.Rewards.push_back(slime.ReleaseDropItem()); // 소유권 이전
 					}
 
 					m_UI->DisplayBattleWinDetails(winData);
