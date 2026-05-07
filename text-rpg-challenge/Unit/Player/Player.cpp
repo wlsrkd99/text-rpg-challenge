@@ -14,15 +14,30 @@ namespace TextRPG
 		return false;
 	}
 
-	void Player::LevelUp()
+	bool Player::LevelUp()
 	{
-		// TODO: 레벨업 로직 구현 (스탯 포인트 지급 등)
+		if(m_Exp >= GetExpToNextLevel())
+		{
+			m_Exp -= GetExpToNextLevel();
+			m_Level++;
+			m_AvailableStatPoints += 5;
+			return true;
+		}
+		return false;
 	}
 
-	void Player::GainExp(int exp)
+	int Player::GetExpToNextLevel() const
+	{
+		return m_Level * 100;
+	}
+
+	void Player::AddExp(int exp)
 	{
 		m_Exp += exp;
-		// TODO: 경험치에 따른 레벨업 체크 로직 구현
+		if(LevelUp())
+		{
+			// TODO: 레벨업 시 처리할 로직
+		}
 	}
 
 	void Player::ChangeJob(EJobType newJob)
@@ -56,15 +71,15 @@ namespace TextRPG
 		m_CurrentMP = GetMaxMP();
 	}
 
-	void Player::Attack(Character& target)
+	AttackResult Player::Attack(Character& target)
 	{
 		if (m_AttackStrategy)
 		{
-			m_AttackStrategy->ExecuteAttack(this, target);
+			return m_AttackStrategy->ExecuteAttack(this, target);
 		}
 		else
 		{
-			Character::Attack(target);
+			return Character::Attack(target);
 		}
 	}
 }

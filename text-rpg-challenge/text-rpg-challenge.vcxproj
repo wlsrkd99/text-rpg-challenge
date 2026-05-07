@@ -20,7 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Data\BaseStatBonus.h" />
-    <ClInclude Include="Data\EStatType.h" />
+    <ClInclude Include="Data\BattleData.h" />
+    <ClInclude Include="Enums\EBattleActionType.h" />
     <ClInclude Include="Enums\EDerivedStatType.h" />
     <ClInclude Include="Enums\EGameState.h" />
     <ClInclude Include="Enums\EItemGrade.h" />
@@ -44,6 +45,7 @@
     <ClInclude Include="Unit\Character.h" />
     <ClInclude Include="Core\User.h" />
     <ClInclude Include="Unit\Skill\ISkill.h" />
+    <ClInclude Include="Utils\Delegate.h" />
     <ClInclude Include="Utils\StatFormatting.h" />
   </ItemGroup>
   <ItemGroup>

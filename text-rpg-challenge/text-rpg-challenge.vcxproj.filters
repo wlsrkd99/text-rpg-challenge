@@ -90,19 +90,13 @@
     <ClInclude Include="Unit\Player\AttackStrategy.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Data\EStatType.h">
+    <ClInclude Include="Data\BattleData.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Unit\Player\Archer.h">
+    <ClInclude Include="Utils\Delegate.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Unit\Player\Rogue.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Unit\Player\Warrior.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Unit\Player\Mage.h">
+    <ClInclude Include="Enums\EBattleActionType.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -153,18 +147,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Utils\StatFormatting.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Unit\Player\Archer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Unit\Player\Rogue.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Unit\Player\Warrior.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Unit\Player\Mage.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

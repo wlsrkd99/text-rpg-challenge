@@ -1,6 +1,8 @@
 #include "Character.h"
 #include "../Data/StatData.h"
+#include "../Data/BattleData.h"
 #include <algorithm>
+#include <vector>
 
 namespace TextRPG
 {
@@ -75,18 +77,27 @@ namespace TextRPG
 		}
 	}
 
-	void Character::Attack(Character& target)
+	AttackResult Character::Attack(Character& target)
 	{
+		AttackResult result;
+		result.AttackerName = GetName();
+		result.AttackName = "attacks";
+		result.TargetName = target.GetName();
+		result.TargetHP = target.GetCurrentHP();
+
 		int damage = std::max(1, GetPAtk() - target.GetPDef());
 		target.TakeDamage(damage);
+		std::vector<int> damages { damage };
+		result.Damages = damages;
+
+		return result;
 	}
 
 	bool Character::TakeDamage(int damage)
 	{
 		if (damage < 0) damage = 0;
 		m_CurrentHP -= damage;
-		if (m_CurrentHP < 0) m_CurrentHP = 0;
-		return m_CurrentHP == 0;
+		return m_CurrentHP <= 0;
 	}
 
 	int Character::RestoreHealth(int amount)

@@ -24,7 +24,7 @@ namespace TextRPG
 		* @param state 게임 상태 객체 포인터
 		* @param ui UI 관리자 객체 포인터
 		*/
-		void Setup(GameStateBase* state, UIManager* ui)
+		virtual void Setup(GameStateBase* state, UIManager* ui)
 		{
 			m_State = state;
 			m_UI = ui;

@@ -1,20 +1,46 @@
 #pragma once
 
 #include "../Unit/Player/Player.h"
+#include "../Unit/Monster/Monster.h"
 #include "../Enums/EJobType.h"
+#include "../Enums/EBattleActionType.h"
+#include "../Utils/Delegate.h"
 #include <string>
 #include <vector>
 #include <iostream>
 #include <map>
 #include <functional>
+#include <utility>
 
 namespace TextRPG
 {
+	struct MenuConfig
+	{
+		std::string Title;
+		std::vector<std::string> Infos;   // 선택지 전 보여줄 추가 정보들
+		std::vector<std::string> Options; // 실제 메뉴 선택지들
+		std::string Prompt = "Choice: ";
+	};
+
+	struct AttackResult;
+	class Inventory;
+
 	class UIManager
 	{
 
 	public:
 		UIManager() {};
+
+		Delegate<int> OnMenuNavigationRequested;
+
+		Delegate<std::string> OnCharacterNameEntered;
+		Delegate<int, int> OnInitialStatAllocated;
+		Delegate<EStatType, int> OnStatUpgradeRequested;
+
+		Delegate<EJobType> OnJobChangeRequested;
+		Delegate<int> OnItemUseRequested;
+		Delegate<EBattleActionType> OnBattleActionSelected;
+		
 
 #pragma region Basic I/O
 	public:
@@ -50,56 +76,137 @@ namespace TextRPG
 				}
 			}
 		}
+
+		/** @brief 안내 메시지(제목과 설명)를 범용적인 양식으로 출력합니다. */
+		void PrintGuide(const std::string& title, const std::string& description = "");
+
+		/** @brief 범용적인 선택지 메뉴를 띄우고 사용자 입력을 받아 반환합니다. */
+		int PromptMenu(const MenuConfig& config);
+
+		/** @brief 캐릭터 이름을 묻고 입력을 검증한 후 이벤트를 발생시킵니다. */
+		void PromptCharacterName();
 #pragma endregion
 
-#pragma region Game Data Display
 	public:
-		/** @brief 플레이어의 현재 스탯을 형식에 맞게 출력합니다. */
-		void PrintPlayerStats(const Player& player);
+		/** 
+		 * @brief 메인메뉴를 선택하는 프롬프트를 띄우고 이벤트를 발생시킵니다.
+		 * @param gold 현재 유저가 보유한 골드량
+		 */
+		void PromptMainMenuAction(int gold);
 
-		/** @brief 기본 아이템을 출력합니다. */
-		void PrintDefaultItem(const std::vector<std::pair<std::string, int>>& receivedItems);
 
-		/** @brief 캐릭터 강화 메뉴를 출력합니다. */
-		void PrintUpgradeMenu(const Player& player);
-
-		/** @brief 스탯 효과를 출력합니다. */
-		void PrintStatEffects();
-		
-		/** @brief 스탯 분배 UI를 출력합니다. */
-		void PrintStatDistributionUI(const std::vector<std::string>& statNames, const std::array<int, static_cast<int>(EStatType::ST_Count)>& baseStats, int remainingPoints);
-#pragma endregion
-
-#pragma region User Interaction Flow Control
-	private:
-		/** @brief Health와 Mana 스탯 분배 UI 상호작용을 처리합니다. */ // 내부 함수 네이밍 규칙 적용
-		void _handleHealthManaDistributionUI(std::array<int, static_cast<int>(EStatType::ST_Count)>& outBaseStats);
-
-		/** @brief 핵심 스탯 분배 UI 상호작용을 처리합니다. */ // 내부 함수 네이밍 규칙 적용
-		void _handleCoreStatDistributionUI(std::array<int, static_cast<int>(EStatType::ST_Count)>& outBaseStats);
-		
+#pragma region Stat
 	public:
-		/** @brief 직업 변경 메뉴를 표시하고 사용자의 선택을 받아 반환합니다. */
-		EJobType ShowClassChangeMenuAndGetChoice(const Player& player);
-
-		/** @brief 캐릭터 생성 시 초기 스탯 분배 과정을 UI를 통해 처리하고 결과를 반환합니다. */
-		std::array<int, static_cast<int>(EStatType::ST_Count)> PerformInitialStatDistribution();
+		/** @brief 각 스탯이 어떤 능력치에 영향을 주는지 설명하는 정보를 출력합니다. */
+		void DisplayStatEffects();
 
 		/**
-		 * @brief 핵심 스탯 분배 과정을 처리하는 UI 헬퍼 함수
-		 * @param getPoints 사용 가능한 총 포인트를 반환하는 함수
-		 * @param spendPoints 포인트를 사용하고 성공 여부를 반환하는 함수
-		 * @param getStatsArray 현재 스탯 배열을 반환하는 함수
-		 * @param applyStatChange 선택된 스탯에 포인트를 적용하는 함수
-		 * @param onUpdate 스탯이 업데이트될 때마다 호출될 콜백 함수 (선택 사항)
+		 * @brief 현재 스탯 현황을 출력합니다.
+		 * @param statNames 출력할 스탯 이름 목록 (Endurance, Strength, Agility, Intelligence, Wisdom)
+		 * @param baseStats 캐릭터의 기본 스탯 배열
+		 * @param remainingPoints 남은 스탯 포인트
 		 */
-		void ShowStatDistribution(
-			std::function<int()> getPoints,
-			std::function<bool(int)> spendPoints,
-			std::function<const std::array<int, static_cast<int>(EStatType::ST_Count)>&()> getStatsArray,
-			std::function<void(EStatType, int)> applyStatChange,
-			std::function<void()> onUpdate = nullptr
-		);
+		void DisplayStatAllocation(const std::vector<std::string>& statNames, const std::array<int, static_cast<int>(EStatType::ST_Count)>& baseStats, int remainingPoints);
+
+		/**
+		* @brief 캐릭터의 전체 스탯 정보를 출력합니다. (기본 스탯 + 파생 스탯)
+		* @param player 출력할 플레이어 객체
+		*/
+		void DisplayCharacterSheet(const Player& player);
+
+		/**
+		 * @brief 업그레이드할 스탯과 포인트 양을 묻는 프롬프트입니다.
+		 *		  입력 검증 후 이벤트만 발생시키며, 실제 로직 처리는 DungeonGameMode에서 구독하여 처리합니다.
+		 * @param statNames 출력할 스탯 이름 목록 (Endurance, Strength, Agility, Intelligence, Wisdom)
+		 * @param baseStats 캐릭터의 기본 스탯 배열
+		 * @param remainingPoints 남은 스탯 포인트
+		 */
+		void PromptStatAllocation(const std::vector<std::string>& statNames, const std::array<int, static_cast<int>(EStatType::ST_Count)>& baseStats, int remainingPoints);
+
+		/** @brief 초기 체력/마나 분배를 묻고 입력을 검증한 후 이벤트를 발생시킵니다. */
+		void PromptInitialStatAllocation();
+
+		/*
+		 * @brief 기본 아이템을 출력합니다.
+		 * @param items 출력할 기본 아이템 목록
+		 */
+		void DisplayDefaultItem(const std::vector<std::pair<std::string, int>>& items);
+
+	private:
+		/*
+		 * @brief 플레이어의 기본 스탯을 출력하는 내부 함수입니다.
+		 *		  DisplayCharacterSheet에서 호출되어 전체 캐릭터 시트를 구성합니다.
+		 * @param player 출력할 플레이어 객체
+		 * @note 기본 스탯: Endurance, Strength, Agility, Intelligence, Wisdom
+		 */
+		void _handleBaseStatSheet(const Player& player);
+
+		/*
+		 * @brief 플레이어의 파생 스탯을 출력하는 내부 함수입니다.
+		 *		  DisplayCharacterSheet에서 호출되어 전체 캐릭터 시트를 구성합니다.
+		 * @param player 출력할 플레이어 객체
+		 * @note 파생 스탯: Health, Mana, Attack Power, Defense, Evasion Rate 등
+		 */
+		void _handleDerivedStatSheet(const Player& player);
 #pragma endregion
+
+#pragma region Battle
+	public:
+		/** @brief 전투 행동을 선택하는 프롬프트를 띄우고 이벤트를 발생시킵니다. */
+		void PromptBattleAction();
+
+		/*
+		 * @brief 공격 결과를 형식에 맞게 출력합니다. 
+		 * @param result 출력할 공격 결과
+		 */
+		void DisplayAttackResult(const AttackResult& result);
+
+		/*
+		 * @brief 승리 결과를 출력합니다.
+		 * @param data 출력할 승리 결과 데이터
+		 */
+		void DisplayBattleWinDetails(const BattleWinData& data);
+
+		/*
+		 * @brief 패배 결과를 출력합니다.
+		 * @param data 출력할 패배 결과 데이터
+		 */
+		void DisplayBattleLoseDetails(const BattleLoseData& data);
+
+#pragma endregion
+
+#pragma region Inventory
+	public:
+		/*
+		 * @brief 인벤토리 내용을 출력합니다.
+		 * @param inventory 출력할 인벤토리 객체
+		 */
+		void DisplayInventory(const Inventory& inventory);
+
+		/*
+		 * @brief 아이템 사용 결과를 출력합니다.
+		 * @param result 출력할 아이템 사용 결과
+		 */
+		void DisplayItemUseResult(const ItemUseResult& result);
+
+		/*
+		 * @brief 인벤토리에서 사용할 아이템을 선택하는 프롬프트입니다.
+		 * @param inventory 출력할 인벤토리 객체
+		 * @return 선택된 아이템의 ID, 취소 시 -1
+		 */
+		void PromptItemUse(const Inventory& inventory);
+
+
+#pragma endregion
+
+#pragma region Town
+	public:
+		/**
+		 * @brief 전직할 직업을 선택하는 프롬프트를 띄우고 이벤트를 발생시킵니다.
+		 * @param player 출력 및 검증에 사용할 플레이어 객체
+		 */
+		void PromptJobChange(const Player& player);
+#pragma endregion
+
 	};
 }

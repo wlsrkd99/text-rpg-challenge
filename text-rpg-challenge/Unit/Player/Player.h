@@ -29,15 +29,16 @@ namespace TextRPG
 		}
 		int GetAvailableStatPoints() const { return m_AvailableStatPoints; }
 		int GetLevel() const { return m_Level; }
-		long GetExp() const { return m_Exp; }
 		virtual EJobType GetJob() const { return m_Job; }
 		bool SpendStatPoints(int points);
 
-		virtual void LevelUp();
-		virtual void GainExp(int exp);
-		virtual void SetJob(EJobType job) { m_Job = job; }
-		virtual void ChangeJob(EJobType newJob);
+		bool LevelUp();
+		int GetExpToNextLevel() const;
+		long GetExp() const { return m_Exp; }
+		void AddExp(int exp);
+		void SetJob(EJobType job) { m_Job = job; }
+		void ChangeJob(EJobType newJob);
 		
-		virtual void Attack(Character& target) override;
+		AttackResult Attack(Character& target) override;
 	};
 }
