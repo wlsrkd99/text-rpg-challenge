@@ -5,11 +5,11 @@ namespace TextRPG
 {
 	enum class EStatType
 	{
-		ST_Health,      
-		ST_Mana,        
-		ST_Endurance,   
-		ST_Strength,    
-		ST_Agility,     
+		ST_Health,
+		ST_Mana,
+		ST_Endurance,
+		ST_Strength,
+		ST_Agility,
 		ST_Intelligence,
 		ST_Wisdom,
 		ST_Count
@@ -40,7 +40,7 @@ namespace TextRPG
 		case EStatType::ST_Strength: 		return "Str";
 		case EStatType::ST_Agility: 		return "Agi";
 		case EStatType::ST_Intelligence: 	return "Int";
-		case EStatType::ST_Wisdom: 			return "Wis	";
+		case EStatType::ST_Wisdom: 			return "Wis";
 		default: return "Unknown";
 		}
 	}
