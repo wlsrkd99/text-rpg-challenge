@@ -23,24 +23,67 @@ namespace TextRPG
 		{
 			switch (choice)
 			{
-			case 1:
-				ProcessTown();
-				break;
-			case 2:
-				ProcessBattle();
-				break;
-			case 3:
-				ProcessStatsUpgrade();
-				break;
-			case 4:
-				ProcessInventory();
-				break;
-			case 0:
-				m_bGameOver = true;
-				break;
+			case 1: m_StateMachine.ChangeState(EGameState::GS_TOWN); break;
+			case 2: m_StateMachine.ChangeState(EGameState::GS_BATTLE); break;
+			case 3: m_StateMachine.PushState(EGameState::GS_STAT_UPGRADE); break;
+			case 4: m_StateMachine.PushState(EGameState::GS_INVENTORY); break;
+			case 0: m_StateMachine.ChangeState(EGameState::GS_GAMEOVER); break;
 			default:
 				m_UI->PrintMessage("Invalid choice. Please try again.");
 				break;
+			}
+		});
+
+		// 마을 행동 선택
+		m_UI->OnTownActionSelected.AddListener([this](int choice) {
+			switch (choice) {
+			case 1: m_UI->PromptJobChange(*m_State->GetPlayer()); break;
+			case 2: m_StateMachine.PushState(EGameState::GS_SHOP); break;
+			case 0: m_StateMachine.PopState(); m_UI->PrintMessage("Leaving town."); break;
+			default: m_UI->PrintMessage("Invalid choice. Please try again."); break;
+			}
+		});
+
+		// 상점 메뉴 선택
+		m_UI->OnPotionShopActionSelected.AddListener([this](int choice) {
+			switch (choice) {
+			case 1: m_StateMachine.PushState(EGameState::GS_SHOP_BUY); break;
+			case 2: m_StateMachine.PushState(EGameState::GS_SHOP_SELL); break;
+			case 3: m_UI->PrintMessage("Craft (not implemented)"); break;
+			case 0: m_StateMachine.PopState(); m_UI->PrintMessage("Leaving the potion shop."); break;
+			default: m_UI->PrintMessage("Invalid choice. Please try again."); break;
+			}
+		});
+
+		// 아이템 구매/판매 요청 처리
+		m_UI->OnShopBuyRequested.AddListener([this](int choice, int count) {
+			if (choice == 0) { m_StateMachine.PopState(); return; }
+			_handleShopBuyLogic(choice, count);
+		});
+		m_UI->OnShopSellRequested.AddListener([this](int choice, int count) {
+			if (choice == 0) { m_StateMachine.PopState(); return; }
+			_handleShopSellLogic(choice, count);
+		});
+
+		// 인벤토리 메인 행동 선택
+		m_UI->OnInventoryActionSelected.AddListener([this](int choice) {
+			switch (choice) {
+			case 1: m_StateMachine.PushState(EGameState::GS_INVENTORY_USE); break;
+			case 0: m_StateMachine.PopState(); break;
+			default: m_UI->PrintMessage("Invalid choice. Please try again."); break;
+			}
+		});
+
+		// 스탯 강화 메뉴 선택
+		m_UI->OnStatUpgradeMenuSelected.AddListener([this](int choice) {
+			switch (choice) {
+			case 1: m_UI->DisplayStatEffects(); break;
+			case 2: 
+				if (m_State->GetPlayer()->GetAvailableStatPoints() <= 0) m_UI->PrintMessage("You have no available stat points to spend.");
+				else m_StateMachine.PushState(EGameState::GS_STAT_ALLOCATION);
+				break;
+			case 0: m_StateMachine.PopState(); m_UI->PrintMessage("Returning."); break;
+			default: m_UI->PrintMessage("Invalid choice. Please try again."); break;
 			}
 		});
 
@@ -66,7 +109,11 @@ namespace TextRPG
 		m_UI->OnStatUpgradeRequested.AddListener([this](EStatType stat, int amount) 
 		{
 			if (stat == EStatType::ST_Count && amount == 0) {
-				m_bExitStatUpgrade = true;
+				if (m_StateMachine.GetCurrentState() == EGameState::GS_STAT_ALLOCATION) {
+					m_StateMachine.PopState();
+				} else {
+					m_bExitStatUpgrade = true;
+				}
 				return;
 			}
 
@@ -75,6 +122,9 @@ namespace TextRPG
 				player->SetBaseStat(stat, player->GetBaseStat(stat) + amount);
 				m_UI->PrintMessage(GetStatName(stat) + " increased by " + std::to_string(amount) + ".");
 				m_UI->DisplayCharacterSheet(*player);
+				
+				if (player->GetAvailableStatPoints() <= 0 && m_StateMachine.GetCurrentState() == EGameState::GS_STAT_ALLOCATION)
+					m_StateMachine.PopState();
 			}
 			else {
 				m_UI->PrintMessage("You don't have enough points. You only have " + std::to_string(player->GetAvailableStatPoints()) + " left.");
@@ -99,6 +149,7 @@ namespace TextRPG
 			if (itemID == -1) 
 			{
 				m_bItemUsedSuccessfully = false;
+				if (m_StateMachine.GetCurrentState() == EGameState::GS_INVENTORY_USE) m_StateMachine.PopState();
 				return;
 			}
 			Player* player = m_State->GetPlayer();
@@ -106,8 +157,12 @@ namespace TextRPG
 			ItemUseResult useResult = m_State->GetUser().UseItem(itemID, *player);
 			m_UI->DisplayItemUseResult(useResult);
 			m_bItemUsedSuccessfully = useResult.bSuccess;
+
+			if (m_StateMachine.GetCurrentState() == EGameState::GS_INVENTORY_USE)
+				m_StateMachine.PopState();
 		});
 
+		// 전투 행동 선택
 		m_UI->OnBattleActionSelected.AddListener([this](EBattleActionType actionType)
 		{
 			Player* player = m_State->GetPlayer();
@@ -143,10 +198,55 @@ namespace TextRPG
 	{
 		InitGame();
 
+		m_StateMachine.ChangeState(EGameState::GS_MAIN_MENU);
 		m_bGameOver = false;
-		while (!m_bGameOver)
+		while (!m_bGameOver && !m_StateMachine.IsEmpty())
 		{
-			m_UI->PromptMainMenuAction(m_State->GetUser().GetGold());
+			switch (m_StateMachine.GetCurrentState())
+			{
+			case EGameState::GS_MAIN_MENU:
+				m_UI->PromptMainMenuAction(m_State->GetUser().GetInventory().GetGold());
+				break;
+			case EGameState::GS_TOWN:
+				ProcessTown();
+				break;
+			case EGameState::GS_SHOP:
+				ProcessPotionShop();
+				break;
+			case EGameState::GS_SHOP_BUY:
+				m_UI->PromptShopBuyAction(m_PotionShop.GetStock(), m_State->GetUser().GetInventory().GetGold());
+				break;
+			case EGameState::GS_SHOP_SELL:
+				m_UI->PromptShopSellAction(m_State->GetUser().GetInventory());
+				break;
+			case EGameState::GS_STAT_UPGRADE:
+				ProcessStatsUpgrade();
+				break;
+			case EGameState::GS_STAT_ALLOCATION:
+			{
+				Player* player = m_State->GetPlayer();
+				std::vector<std::string> coreStatNames;
+				for (EStatType statType : UpgradeableCoreStats) coreStatNames.push_back(GetStatName(statType));
+				m_UI->PromptStatAllocation(coreStatNames, player->GetBaseStats(), player->GetAvailableStatPoints());
+				break;
+			}
+			case EGameState::GS_INVENTORY:
+				ProcessInventory();
+				break;
+			case EGameState::GS_INVENTORY_USE:
+				m_UI->PromptItemUse(m_State->GetUser().GetInventory());
+				break;
+			case EGameState::GS_BATTLE:
+				ProcessBattle();
+				m_StateMachine.PopState(); // 전투 끝나면 이전 상태(마을 등)로
+				break;
+			case EGameState::GS_GAMEOVER:
+				m_bGameOver = true;
+				break;
+			default:
+				m_StateMachine.ChangeState(EGameState::GS_MAIN_MENU);
+				break;
+			}
 		}
 	}
 
@@ -191,7 +291,7 @@ namespace TextRPG
 					}
 
 					m_UI->DisplayBattleWinDetails(winData);
-					m_State->GetUser().AddGold(winData.EarnedGold);
+					m_State->GetUser().GetInventory().GainGold(winData.EarnedGold);
 					if (winData.Rewards.size() > 0)
 					{
 						for(ItemBase* item : winData.Rewards)
@@ -224,36 +324,7 @@ namespace TextRPG
 
 	void DungeonGameMode::ProcessTown()
 	{
-		while (true)
-		{
-			m_UI->PrintTitle("[ Town ]");
-
-			MenuConfig config;
-			config.Title = "You are in town. What would you like to do?";
-			config.Options = {
-				"1. Job Change Center",
-				"2. Visit Shop (Not implemented)",
-				"0. Leave Town"
-			};
-
-			int choice = m_UI->PromptMenu(config);
-
-			switch (choice)
-			{
-			case 1:
-				m_UI->PromptJobChange(*m_State->GetPlayer());
-				break;
-			case 2:
-				m_UI->PrintMessage("Shop is not yet open.");
-				break;
-			case 0:
-				m_UI->PrintMessage("Leaving town.");
-				return;
-			default:
-				m_UI->PrintMessage("Invalid choice. Please try again.");
-				break;
-			}
-		}
+		m_UI->PromptTownAction();
 	}
 
 	void DungeonGameMode::InitGame()
@@ -262,6 +333,13 @@ namespace TextRPG
 		m_UI->PromptInitialStatAllocation();
 		_handleBaseStatDistribution();
 		m_UI->DisplayDefaultItem(_handleReceiveDefaultItem());
+
+		// 상점 초기 제고 설정
+		ItemEffects mpEffect; mpEffect.RestoreMP.Value = 50;
+		m_PotionShop.AddItemToStock(new Potion(111, "Mana Potion", mpEffect, 50, 5));
+		
+		ItemEffects hpEffect; hpEffect.RestoreHP.Value = 100;
+		m_PotionShop.AddItemToStock(new Potion(101, "Health Potion", hpEffect, 50, 10));
 	}
 
 	void DungeonGameMode::_handleBaseStatDistribution()
@@ -309,65 +387,105 @@ namespace TextRPG
 		inventory.AddItem(new Potion(mpPotionId, mpPotionName, effect2, mpPotionPrice, mpPotionCount));
 		receivedItems.push_back({ mpPotionName, mpPotionCount });
 
+		// 빈 포션 지급 (테스트용)
+		ItemEffects emptyEffect; 
+		inventory.AddItem(new Potion(100, "Empty Potion", emptyEffect, 5, 3));
+		receivedItems.push_back({ "Empty Potion", 3 });
+
 		return receivedItems;
 	}
 
 	void DungeonGameMode::ProcessStatsUpgrade()
 	{
-		if (!m_State) return;
-		Player* player = m_State->GetPlayer();
-
-		m_UI->DisplayCharacterSheet(*player);
-		while (true)
-		{
-			MenuConfig config;
-			config.Title = "Upgrade Actions";
-			config.Infos = { "Available Stat Points: " + std::to_string(player->GetAvailableStatPoints()) };
-			config.Options = { "1. Show Stat Effects", "2. Upgrade Base Stats", "0. Back to Town" };
-			config.Prompt = "Enter your choice: ";
-
-			int choice = m_UI->PromptMenu(config);
-			switch (choice)
-			{
-			case 1:
-				m_UI->DisplayStatEffects();
-				break;
-			case 2:
-				if (player->GetAvailableStatPoints() <= 0)
-				{
-					m_UI->PrintMessage("You have no available stat points to spend.");
-					m_UI->DisplayCharacterSheet(*player);
-					break;
-				}
-				_handleBaseStatDistribution();
-				m_UI->DisplayCharacterSheet(*player);
-				break;
-			case 0:
-				m_UI->PrintMessage("Returning to town.");
-				return;
-			default:
-				m_UI->PrintMessage("Invalid choice. Please try again.");
-				break;
-			}
-		}
+		m_UI->PromptStatUpgradeAction(*m_State->GetPlayer());
 	}
 
 
 	void DungeonGameMode::ProcessInventory()
 	{
-		Player* player = m_State->GetPlayer();
-		User& user = m_State->GetUser();
+		m_UI->PromptInventoryAction(m_State->GetUser().GetInventory());
+	}
 
-		m_UI->DisplayInventory(user.GetInventory());
+	void DungeonGameMode::ProcessPotionShop()
+	{
+		m_UI->PromptPotionShopAction();
+	}
 
-		MenuConfig config;
-		config.Title = "Inventory Actions";
-		config.Options = { "1. Use an item", "0. Back to Town" };
-		int choice = m_UI->PromptMenu(config);
+	void DungeonGameMode::_handleShopBuyLogic(int choice, int count)
+	{
+		Inventory& inven = m_State->GetUser().GetInventory();
 
-		if (choice == 1)
+		if (choice <= 0 || count <= 0) 
 		{
-			m_UI->PromptItemUse(user.GetInventory());
+			m_UI->PrintMessage("Invalid choice or quantity.");
+			return;
 		}
+
+		const auto& stockItems = m_PotionShop.GetStock().GetAllItems();
+		if (choice > stockItems.size())
+		{
+			m_UI->PrintMessage("Invalid choice. Please try again.");
+			return;
+		}
+
+		auto it = stockItems.begin();
+		std::advance(it, choice - 1);
+		int itemID = it->second->GetID();
+
+		if (itemID == 101) 
+		{
+			m_UI->PrintMessage("\n[Notice] HP Potions cannot be bought with gold. Use Empty Potions.");
+			int exchangeCount = 0;
+			m_UI->GetInputs("How many Empty Potions (ID: 100) will you exchange? (0 to cancel): ", exchangeCount);
+			
+			if (exchangeCount > 0)
+			{
+				if (m_PotionShop.ExchangeEmptyPotion(exchangeCount, inven))
+					m_UI->PrintMessage("Exchanged successfully. You received " + std::to_string(exchangeCount) + " HP Potion(s).");
+				else
+					m_UI->PrintMessage("Exchange failed. Not enough Empty Potions.");
+			}
+			return;
+		}
+
+		ItemBase* item = m_PotionShop.GetStock().FindItem(itemID);
+		if (!item)
+		{
+			m_UI->PrintMessage("Invalid Item ID.");
+			return;
+		}
+
+		if (m_PotionShop.BuyItem(itemID, count, inven))
+			m_UI->PrintMessage("Successfully bought " + std::to_string(count) + " " + item->GetName() + "(s).");
+		else
+			m_UI->PrintMessage("Not enough gold to buy " + std::to_string(count) + " " + item->GetName() + "(s).");
+	}
+
+	void DungeonGameMode::_handleShopSellLogic(int choice, int count)
+	{
+		Inventory& inven = m_State->GetUser().GetInventory();
+		
+		if (choice <= 0 || count <= 0) 
+		{
+			m_UI->PrintMessage("Invalid choice or quantity.");
+			return;
+		}
+
+		const auto& invenItems = inven.GetAllItems();
+		if (choice > invenItems.size())
+		{
+			m_UI->PrintMessage("Invalid choice. Please try again.");
+			return;
+		}
+
+		auto it = invenItems.begin();
+		std::advance(it, choice - 1);
+		int itemID = it->second->GetID();
+
+		int earned = m_PotionShop.SellItem(itemID, count, inven);
+		if (earned >= 0)
+			m_UI->PrintMessage("Successfully sold. You earned " + std::to_string(earned) + "G.");
+		else
+			m_UI->PrintMessage("Sell failed. Check the Item ID or quantity.");
 	}
 }

@@ -192,6 +192,18 @@ namespace TextRPG
 		OnStatUpgradeRequested.Broadcast(statToUpgrade, amount);
 	}
 
+	void UIManager::PromptStatUpgradeAction(const Player& player)
+	{
+		DisplayCharacterSheet(player);
+		MenuConfig config;
+		config.Title = "Upgrade Actions";
+		config.Infos = { "Available Stat Points: " + std::to_string(player.GetAvailableStatPoints()) };
+		config.Options = { "1. Show Stat Effects", "2. Upgrade Base Stats", "0. Back to Town" };
+		config.Prompt = "Enter your choice: ";
+		int choice = PromptMenu(config);
+		OnStatUpgradeMenuSelected.Broadcast(choice);
+	}
+
 	void UIManager::PromptInitialStatAllocation()
 	{
 		PrintGuide("Initialize Stat: Health & Mana", "Distribute a total of 100 points between Health and Mana.");
@@ -342,6 +354,16 @@ namespace TextRPG
 			PrintMessage("Invalid choice. Please try again.");
 		}
 	}
+
+	void UIManager::PromptInventoryAction(const Inventory& inventory)
+	{
+		DisplayInventory(inventory);
+		MenuConfig config;
+		config.Title = "Inventory Actions";
+		config.Options = { "1. Use an item", "0. Back to Town" };
+		int choice = PromptMenu(config);
+		OnInventoryActionSelected.Broadcast(choice);
+	}
 #pragma endregion
 
 #pragma region Town
@@ -371,6 +393,83 @@ namespace TextRPG
 
 		EJobType selectedJob = static_cast<EJobType>(choice);
 		OnJobChangeRequested.Broadcast(selectedJob);
+	}
+
+	void UIManager::PromptTownAction()
+	{
+		PrintTitle("[ Town ]");
+		MenuConfig config;
+		config.Title = "You are in town. What would you like to do?";
+		config.Options = { "1. Job Center", "2. Potion Shop", "0. Leave Town" };
+		int choice = PromptMenu(config);
+		OnTownActionSelected.Broadcast(choice);
+	}
+
+	void UIManager::PromptPotionShopAction()
+	{
+		MenuConfig config;
+		config.Title = "Potion Shop";
+		config.Options = { "1. Buy Items", "2. Sell Items", "3. Craft Items", "0. Back to Town" };
+		int choice = PromptMenu(config);
+		OnPotionShopActionSelected.Broadcast(choice);
+	}
+
+	void UIManager::PromptShopBuyAction(const Inventory& stock, int playerGold)
+	{
+		DisplayShopStock(stock, playerGold);
+		int choice = 0;
+		GetInputs("Enter item number to buy (0 to cancel): ", choice);
+		if (choice == 0)
+		{
+			OnShopBuyRequested.Broadcast(0, 0);
+			return;
+		}
+		
+		int count = 0;
+		GetInputs("Enter quantity: ", count);
+		OnShopBuyRequested.Broadcast(choice, count);
+	}
+
+	void UIManager::PromptShopSellAction(const Inventory& inventory)
+	{
+		DisplayInventory(inventory);
+		PrintMessage("Your Gold: " + std::to_string(inventory.GetGold()) + "G\n");
+		int choice = 0;
+		GetInputs("Enter item number to sell (0 to cancel): ", choice);
+		if (choice == 0)
+		{
+			OnShopSellRequested.Broadcast(0, 0);
+			return;
+		}
+
+		int count = 0;
+		GetInputs("Enter quantity: ", count);
+		OnShopSellRequested.Broadcast(choice, count);
+	}
+
+	void UIManager::DisplayShopStock(const Inventory& stock, int playerGold)
+	{
+		PrintTitle("[ Buy ]");
+		PrintMessage(" Your Gold: " + std::to_string(playerGold) + "G\n");
+
+		if (stock.GetAllItems().empty())
+		{
+			PrintMessage("Shop is empty.");
+			return;
+		}
+
+		int index = 1;
+		for (const auto& pair : stock.GetAllItems())
+		{
+			ItemBase* item = pair.second;
+			if (item->GetID() == 101) {
+				PrintMessage(" " + std::to_string(index) + ". " + item->GetName() + " [Stock: " + std::to_string(item->GetCount()) + "] | Price: Exchange Only (Needs Empty Potion)");
+			} else {
+				PrintMessage(" " + std::to_string(index) + ". " + item->GetName() + " [Stock: " + std::to_string(item->GetCount()) + "] | Price: " + std::to_string(item->GetPrice()) + "G");
+			}
+			index++;
+		}
+		PrintMessage(SEPARATOR);
 	}
 #pragma endregion
 }

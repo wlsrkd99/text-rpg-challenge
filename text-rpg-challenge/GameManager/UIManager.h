@@ -40,7 +40,13 @@ namespace TextRPG
 		Delegate<EJobType> OnJobChangeRequested;
 		Delegate<int> OnItemUseRequested;
 		Delegate<EBattleActionType> OnBattleActionSelected;
-		
+
+		Delegate<int> OnTownActionSelected;
+		Delegate<int> OnPotionShopActionSelected;
+		Delegate<int, int> OnShopBuyRequested;
+		Delegate<int, int> OnShopSellRequested;
+		Delegate<int> OnStatUpgradeMenuSelected;
+		Delegate<int> OnInventoryActionSelected;
 
 #pragma region Basic I/O
 	public:
@@ -59,7 +65,7 @@ namespace TextRPG
 		{
 			while (true)
 			{
-				std::cout << prompt;
+				if(prompt.length() > 0)	std::cout << prompt;
 				using expander = int[];
 				(void)expander{ 0, ((void)(std::cin >> args), 0)... };
 
@@ -122,6 +128,8 @@ namespace TextRPG
 		 * @param remainingPoints 남은 스탯 포인트
 		 */
 		void PromptStatAllocation(const std::vector<std::string>& statNames, const std::array<int, static_cast<int>(EStatType::ST_Count)>& baseStats, int remainingPoints);
+
+		void PromptStatUpgradeAction(const Player& player);
 
 		/** @brief 초기 체력/마나 분배를 묻고 입력을 검증한 후 이벤트를 발생시킵니다. */
 		void PromptInitialStatAllocation();
@@ -196,6 +204,8 @@ namespace TextRPG
 		 */
 		void PromptItemUse(const Inventory& inventory);
 
+		void PromptInventoryAction(const Inventory& inventory);
+
 
 #pragma endregion
 
@@ -206,7 +216,23 @@ namespace TextRPG
 		 * @param player 출력 및 검증에 사용할 플레이어 객체
 		 */
 		void PromptJobChange(const Player& player);
+
+		void PromptTownAction();
+		void PromptPotionShopAction();
+		void PromptShopBuyAction(const Inventory& stock, int playerGold);
+		void PromptShopSellAction(const Inventory& inventory);
+
+		void DisplayShopItemList();
+
+		/**
+		 * @brief 상점 재고 목록과 유저 소지금 정보를 출력합니다.
+		 * @param stock 상점 인벤토리 객체
+		 * @param playerGold 플레이어 보유 골드
+		 */
+		void DisplayShopStock(const Inventory& stock, int playerGold);
 #pragma endregion
 
+#pragma region Shop
+#pragma endregion
 	};
 }

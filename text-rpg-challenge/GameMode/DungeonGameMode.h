@@ -2,6 +2,9 @@
 
 #include "GameModeBase.h"
 #include "../GameManager/UIManager.h"
+#include "../Shop/PotionShop.h"
+#include "../Enums/EGameState.h"
+#include "../Utils/StateMachine.h"
 #include <functional>
 
 namespace TextRPG
@@ -25,7 +28,7 @@ namespace TextRPG
 		void ProcessTown();
 
 		void ProcessInventory();
-		void ProcessShop();
+		void ProcessPotionShop();
 		void ProcessDungeonExplore();
 
 		virtual void Run() override;
@@ -37,6 +40,8 @@ namespace TextRPG
 		bool m_bPlayerTurnConsumed = false; // 전투 턴 소모 여부
 		bool m_bGameOver = false; // 게임 종료 여부
 		Monster* m_CurrentMonster = nullptr; // 현재 교전 중인 몬스터
+		PotionShop m_PotionShop; // 포션 상점 객체
+		StateMachine<EGameState> m_StateMachine; // 상태 머신 관리자
 
 		/** @brief 기본 스탯 분배 과정을 처리합니다. */
 		void _handleBaseStatDistribution();
@@ -47,6 +52,8 @@ namespace TextRPG
 		 */
 		std::vector<std::pair<std::string, int>> _handleReceiveDefaultItem();
 
+		void _handleShopBuyLogic(int choice, int count);
+		void _handleShopSellLogic(int choice, int count);
 
 	};
 }

@@ -39,6 +39,8 @@
     <ClInclude Include="Item\Inventory.h" />
     <ClInclude Include="Item\ItemBase.h" />
     <ClInclude Include="Item\Potion.h" />
+    <ClInclude Include="Shop\PotionShop.h" />
+    <ClInclude Include="Shop\Shop.h" />
     <ClInclude Include="Unit\Monster\Monster.h" />
     <ClInclude Include="Unit\Player\AttackStrategy.h" />
     <ClInclude Include="Unit\Player\Player.h" />
@@ -60,6 +62,8 @@
     <ClCompile Include="Item\Inventory.cpp" />
     <ClCompile Include="Item\ItemBase.cpp" />
     <ClCompile Include="Item\Potion.cpp" />
+    <ClCompile Include="Shop\PotionShop.cpp" />
+    <ClCompile Include="Shop\Shop.cpp" />
     <ClCompile Include="Unit\Monster\Monster.cpp" />
     <ClCompile Include="Unit\Player\Player.cpp" />
     <ClCompile Include="Unit\Character.cpp" />
