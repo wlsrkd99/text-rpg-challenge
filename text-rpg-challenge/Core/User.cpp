@@ -19,9 +19,13 @@ namespace TextRPG
             if (potion)
             {
                 result.ItemName = potion->GetName();
-                potion->Use(target);
-                m_Inventory.RemoveItem(itemID, 1);
-                result.bSuccess = true;
+                if (m_Inventory.RemoveItem(itemID, 1))
+                {
+                    result = potion->Use(target);
+                    result.bSuccess = true;
+
+                    m_Inventory.AddItem(new ItemBase(100, "Empty Potion", EItemType::IT_POTION, EItemGrade::IG_COMMON, 0, 1));
+                }
             }
         }
         return result;
