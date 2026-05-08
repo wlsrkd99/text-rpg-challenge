@@ -59,7 +59,7 @@ namespace TextRPG
 	{
 		PrintTitle("[ Dungeon Escape Text RPG ]");
 		std::string name = GetStringInput("Enter your hero's name: ");
-		OnCharacterNameEntered.Broadcast(name);
+		OnCharacterNameRequested.Broadcast(name);
 	}
 #pragma endregion
 
@@ -215,7 +215,7 @@ namespace TextRPG
 
 			if (hp + mp == 100) {
 				if (hp > 10 && mp > 10) {
-					OnInitialStatAllocated.Broadcast(hp, mp);
+					OnInitialStatRequested.Broadcast(hp, mp);
 					break;
 				}
 				PrintMessage("Health and Mana must be greater than 10. Please try again.");
@@ -236,6 +236,56 @@ namespace TextRPG
 		PrintMessage("============================================");
 	}
 #pragma endregion
+
+#pragma region Dungeon
+	void UIManager::PromptDungeonAction(const DungeonFloor& floor)
+	{
+		MenuConfig config;
+		config.Title = "[ Dungeon Floor " + std::to_string(floor.GetFloorLevel()) +	" ]";
+
+		int roomCount = floor.GetRooms().size();
+		int clearedCount = 0;
+		for(Room room : floor.GetRooms())
+		{
+			std::string roomStr;
+			Monster* monster = room.RoomMonster;
+
+			if (!room.bIsBossRoom)
+			{
+				roomStr += "Room " + std::to_string(room.RoomID) + ": " + monster->GetName();
+				roomStr += " (HP " + std::to_string(monster->GetCurrentHP()) + ", " + "Atk " + std::to_string(monster->GetPAtk()) + ")";
+				if (room.bIsCleared)
+				{
+					roomStr += "    -> Clear!";
+					clearedCount++;
+				}
+			}
+			else
+			{
+				if (roomCount - 1 != clearedCount)
+				{
+					roomCount--;
+					break;
+				}
+				config.Infos.push_back("\n [ Boss Room Unlocked! ]");
+				roomStr += std::to_string(room.RoomID) + ". " + monster->GetName() + " appear! ";
+				roomStr += " (HP " + std::to_string(monster->GetCurrentHP()) + ", " + "Atk " + std::to_string(monster->GetPAtk()) +", " + "Def " + std::to_string(monster->GetPDef()) + ")";
+				if(room.bIsCleared)
+				{
+					roomStr += "\n\n" + monster->GetName() + " defeated!";
+					clearedCount++;
+				}
+			}
+			config.Infos.push_back(roomStr);
+			config.Options.push_back(std::to_string(room.RoomID) + ". Enter Room " + std::to_string(room.RoomID));
+		}
+		config.Options.push_back("0. Exit Dungeon");
+
+		int choice = PromptMenu(config);
+		OnDungeonRoomSelected.Broadcast(choice, roomCount);
+	}
+#pragma endregion
+
 
 #pragma region Battle
 	void UIManager::PromptBattleAction()

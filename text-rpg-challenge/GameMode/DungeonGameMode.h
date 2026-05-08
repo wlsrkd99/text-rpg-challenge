@@ -5,6 +5,7 @@
 #include "../Shop/PotionShop.h"
 #include "../Enums/EGameState.h"
 #include <functional>
+#include "../Data/DungeonData.h"
 
 namespace TextRPG
 {
@@ -28,7 +29,6 @@ namespace TextRPG
 
 		void ProcessInventory();
 		void ProcessPotionShop();
-		void ProcessDungeonExplore();
 
 		virtual void Run() override;
 		virtual void InitGame() override;
@@ -38,9 +38,13 @@ namespace TextRPG
 		bool m_bItemUsedSuccessfully = false; // 아이템 사용 성공 여부
 		bool m_bPlayerTurnConsumed = false; // 전투 턴 소모 여부
 		bool m_bGameOver = false; // 게임 종료 여부
-		Monster* m_CurrentMonster = nullptr; // 현재 교전 중인 몬스터
+
 		PotionShop m_PotionShop; // 포션 상점 객체
 		StateMachine<EGameState> m_StateMachine; // 상태 머신 관리자
+
+		DungeonFloor* m_CurrentFloor = new DungeonFloor(); // 현재 던전 층 정보
+		Room* m_CurrentRoom = nullptr; // 현재 방 정보
+		Monster* CurrentMonster() { return m_CurrentRoom ? m_CurrentRoom->RoomMonster : nullptr; };
 
 		/** @brief 기본 스탯 분배 과정을 처리합니다. */
 		void _handleBaseStatDistribution();

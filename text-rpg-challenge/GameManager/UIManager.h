@@ -11,6 +11,7 @@
 #include <map>
 #include <functional>
 #include <utility>
+#include "../Data/DungeonData.h"
 
 namespace TextRPG
 {
@@ -31,17 +32,20 @@ namespace TextRPG
 	public:
 		UIManager() {};
 
+		// Main Menu
 		Delegate<int> OnMenuNavigationRequested;
 
-		Delegate<std::string> OnCharacterNameEntered;
-		Delegate<int, int> OnInitialStatAllocated;
+		// Initialization
+		Delegate<std::string> OnCharacterNameRequested;
+		Delegate<int, int> OnInitialStatRequested;
+
+		// Stat
 		Delegate<EStatType, int> OnStatUpgradeRequested;
+		Delegate<int> OnStatUpgradeMenuSelected;
 
-		Delegate<EJobType> OnJobChangeRequested;
-		Delegate<int> OnItemUseRequested;
-		Delegate<EBattleActionType> OnBattleActionSelected;
-
+		// Town
 		Delegate<int> OnTownActionSelected;
+		Delegate<EJobType> OnJobChangeRequested;
 		Delegate<int> OnPotionShopActionSelected;
 		Delegate<int, int> OnShopBuyRequested;
 		Delegate<int, int> OnShopSellRequested;
@@ -49,8 +53,15 @@ namespace TextRPG
 		Delegate<std::string> OnRecipeSearchRequested;
 		Delegate<int> OnRecipeCraftRequested;
 
-		Delegate<int> OnStatUpgradeMenuSelected;
+		// Inventory & Item
 		Delegate<int> OnInventoryActionSelected;
+		Delegate<int> OnItemUseRequested;
+
+		// Dungeon
+		Delegate<int, int> OnDungeonRoomSelected;
+		Delegate<EBattleActionType> OnBattleActionSelected;
+
+
 
 #pragma region Basic I/O
 	public:
@@ -160,6 +171,15 @@ namespace TextRPG
 		 * @note 파생 스탯: Health, Mana, Attack Power, Defense, Evasion Rate 등
 		 */
 		void _handleDerivedStatSheet(const Player& player);
+#pragma endregion
+
+#pragma region Dungeon
+	public:
+
+
+		/** @brief 던전 방 선택 프롬프트를 띄우고 이벤트를 발생시킵니다. */
+		void PromptDungeonAction(const DungeonFloor& floor);
+
 #pragma endregion
 
 #pragma region Battle

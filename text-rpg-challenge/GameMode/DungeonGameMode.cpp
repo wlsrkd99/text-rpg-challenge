@@ -18,13 +18,13 @@ namespace TextRPG
 	{
 		GameModeBase::Setup(state, ui);
 
-		// 메뉴 선택
+		// 메인 메뉴 선택
 		m_UI->OnMenuNavigationRequested.AddListener([this](int choice)
 		{
 			switch (choice)
 			{
 			case 1: m_StateMachine.ChangeState(EGameState::GS_TOWN); break;
-			case 2: m_StateMachine.ChangeState(EGameState::GS_BATTLE); break;
+			case 2: m_StateMachine.ChangeState(EGameState::GS_DUNGEON_EXPLORE); break;
 			case 3: m_StateMachine.PushState(EGameState::GS_STAT_UPGRADE); break;
 			case 4: m_StateMachine.PushState(EGameState::GS_INVENTORY); break;
 			case 0: m_StateMachine.ChangeState(EGameState::GS_GAMEOVER); break;
@@ -44,7 +44,7 @@ namespace TextRPG
 			}
 		});
 
-		// 상점 메뉴 선택
+		// 상점 행동 선택
 		m_UI->OnPotionShopActionSelected.AddListener([this](int choice) {
 			switch (choice) {
 			case 1: m_StateMachine.PushState(EGameState::GS_SHOP_BUY); break;
@@ -64,7 +64,6 @@ namespace TextRPG
 			if (choice == 0) { m_StateMachine.PopState(); return; }
 			_handleShopSellLogic(choice, count);
 		});
-
 		m_UI->OnShopCraftActionSelected.AddListener([this](int choice) {
 			if (choice == 0) { m_StateMachine.PopState(); return; }
 			
@@ -98,7 +97,7 @@ namespace TextRPG
 		});
 
 
-		// 인벤토리 메인 행동 선택
+		// 인벤토리 행동 선택
 		m_UI->OnInventoryActionSelected.AddListener([this](int choice) {
 			switch (choice) {
 			case 1: m_StateMachine.PushState(EGameState::GS_INVENTORY_USE); break;
@@ -107,7 +106,7 @@ namespace TextRPG
 			}
 		});
 
-		// 스탯 강화 메뉴 선택
+		// 스탯 강화 행동 선택
 		m_UI->OnStatUpgradeMenuSelected.AddListener([this](int choice) {
 			switch (choice) {
 			case 1: m_UI->DisplayStatEffects(); break;
@@ -121,13 +120,13 @@ namespace TextRPG
 		});
 
 		// 캐릭터 이름 지정
-		m_UI->OnCharacterNameEntered.AddListener([this](std::string name)
+		m_UI->OnCharacterNameRequested.AddListener([this](std::string name)
 		{
 			m_State->GetPlayer()->SetName(name);
 		});
 
 		// 초기 HP / MP 할당
-		m_UI->OnInitialStatAllocated.AddListener([this](int hp, int mp)
+		m_UI->OnInitialStatRequested.AddListener([this](int hp, int mp)
 		{
 			std::array<int, static_cast<int>(EStatType::ST_Count)> baseStats;
 			baseStats.fill(0);
@@ -195,16 +194,35 @@ namespace TextRPG
 				m_StateMachine.PopState();
 		});
 
+		// 던전 행동 선택
+		m_UI->OnDungeonRoomSelected.AddListener([this](int choice, int maxIndex)
+		{
+			if(choice == 0) m_StateMachine.ChangeState(EGameState::GS_MAIN_MENU);
+			else if (choice > 0 && choice <= maxIndex)
+			{
+				Room* selectedRoom = m_CurrentFloor->GetRoom(choice);
+				if(selectedRoom->bIsCleared)
+				{
+					m_UI->PrintMessage("This room has already been cleared.");
+					return;
+				}
+				m_CurrentRoom = selectedRoom;
+				m_StateMachine.PushState(EGameState::GS_BATTLE);
+			}
+			else m_UI->PrintMessage("Invalid choice. Please try again.");
+		});
+
+
 		// 전투 행동 선택
 		m_UI->OnBattleActionSelected.AddListener([this](EBattleActionType actionType)
 		{
 			Player* player = m_State->GetPlayer();
-			if (!m_CurrentMonster) return;
+			if (!CurrentMonster()) return;
 
 			switch (actionType)
 			{
 				case EBattleActionType::BAT_ATTACK:
-					m_UI->DisplayAttackResult(player->Attack(*m_CurrentMonster));
+					m_UI->DisplayAttackResult(player->Attack(*CurrentMonster()));
 					m_bPlayerTurnConsumed = true;
 					break;
 				case EBattleActionType::BAT_SKILL:
@@ -272,6 +290,9 @@ namespace TextRPG
 			case EGameState::GS_INVENTORY_USE:
 				m_UI->PromptItemUse(m_State->GetUser().GetInventory());
 				break;
+			case EGameState::GS_DUNGEON_EXPLORE:
+				m_UI->PromptDungeonAction(*m_CurrentFloor);
+				break;
 			case EGameState::GS_BATTLE:
 				ProcessBattle();
 				m_StateMachine.PopState();
@@ -288,19 +309,12 @@ namespace TextRPG
 
 	void DungeonGameMode::ProcessBattle()
 	{
-		// 1. 전투 설정
-		Monster slime;
-		std::array<int, static_cast<int>(EStatType::ST_Count)> slimeStats;
-		slimeStats.fill(5);
-		slimeStats[static_cast<int>(EStatType::ST_Health)] = 50;
-		slime.Initialize("Slime", slimeStats);
-		slime.SetDropExp(50);
-		slime.SetDropGold(15);
-		slime.SetDropItem(new ItemBase(1, "Slime Jelly", EItemType::IT_NONE, EItemGrade::IG_COMMON, 30, 1));
-		m_CurrentMonster = &slime;
+		if (!m_CurrentRoom || !m_CurrentRoom->RoomMonster) return;
+
+		Monster* monster = m_CurrentRoom->RoomMonster; // 몬스터 객체를 복사하는 대신 포인터를 직접 사용
 
 		Player* player = m_State->GetPlayer();
-		m_UI->PrintTitle("[ Battle Start! ] " + player->GetName() + " vs " + slime.GetName());
+		m_UI->PrintTitle("[ Battle Start! ] " + player->GetName() + " vs " + monster->GetName());
 
 		bool isBattleOver = false;
 		bool isPlayerTurn = true;
@@ -313,17 +327,17 @@ namespace TextRPG
 				m_UI->PromptBattleAction();
 				if (!m_bPlayerTurnConsumed) continue;
 
-				if (slime.GetCurrentHP() <= 0)
+				if (monster->GetCurrentHP() <= 0) // 포인터를 통해 원본 몬스터의 체력에 접근
 				{
-					m_UI->PrintMessage(slime.GetName() + " has been defeated!");
+					m_UI->PrintMessage(monster->GetName() + " has been defeated!");
 
 					//TODO 몬스터 드랍세팅 위치변경 예정
 					BattleWinData winData;
-					winData.EarnedExp = slime.GetDropExp();
-					winData.EarnedGold = slime.GetDropGold();
-					if (slime.GetDropItem() != nullptr)
+					winData.EarnedExp = monster->GetDropExp();
+					winData.EarnedGold = monster->GetDropGold();
+					if (monster->GetDropItem() != nullptr) // ReleaseDropItem도 원본 몬스터에 대해 호출
 					{
-						winData.Rewards.push_back(slime.ReleaseDropItem()); // 소유권 이전
+						winData.Rewards.push_back(monster->ReleaseDropItem());
 					}
 
 					m_UI->DisplayBattleWinDetails(winData);
@@ -337,13 +351,14 @@ namespace TextRPG
 					}
 					player->AddExp(winData.EarnedExp);
 					isBattleOver = true;
+					m_CurrentRoom->bIsCleared = true;
 				}
 			}
 			else
 			{
 				m_UI->PrintMessage("");
 				m_UI->PrintMessage("--- Monster Turn ---");
-				m_UI->DisplayAttackResult(slime.Attack(*player));
+				m_UI->DisplayAttackResult(monster->Attack(*player)); // 포인터를 통해 원본 몬스터의 공격 함수 호출
 
 				if(player->GetCurrentHP() <= 0)
 				{
@@ -355,7 +370,6 @@ namespace TextRPG
 			}
 			isPlayerTurn = !isPlayerTurn;
 		}
-		m_CurrentMonster = nullptr;
 	}
 
 	void DungeonGameMode::ProcessTown()
@@ -385,6 +399,8 @@ namespace TextRPG
 		Recipe mpRecipe(2,"Mana Potion", 111, 1, { {100, 1}, {101, 1} }); // 빈포션 1개 + HP포션 1개로 MP포션(111) 1개 제작
 		m_PotionShop.AddRecipe(mpRecipe);
 		// ==========================================
+
+		m_CurrentFloor->GenerateRooms(1);
 	}
 
 	void DungeonGameMode::_handleBaseStatDistribution()
