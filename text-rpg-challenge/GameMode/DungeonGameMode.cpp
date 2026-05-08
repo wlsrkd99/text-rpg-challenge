@@ -49,7 +49,7 @@ namespace TextRPG
 			switch (choice) {
 			case 1: m_StateMachine.PushState(EGameState::GS_SHOP_BUY); break;
 			case 2: m_StateMachine.PushState(EGameState::GS_SHOP_SELL); break;
-			case 3: m_UI->PrintMessage("Craft (not implemented)"); break;
+			case 3: m_StateMachine.PushState(EGameState::GS_SHOP_CRAFT); break;
 			case 0: m_StateMachine.PopState(); m_UI->PrintMessage("Leaving the potion shop."); break;
 			default: m_UI->PrintMessage("Invalid choice. Please try again."); break;
 			}
@@ -64,6 +64,39 @@ namespace TextRPG
 			if (choice == 0) { m_StateMachine.PopState(); return; }
 			_handleShopSellLogic(choice, count);
 		});
+
+		m_UI->OnShopCraftActionSelected.AddListener([this](int choice) {
+			if (choice == 0) { m_StateMachine.PopState(); return; }
+			
+			std::vector<Recipe> recipes;
+			if (choice == 1) {
+				recipes = m_PotionShop.ShowAllRecipe();
+			} else if (choice == 2) {
+				std::string name = m_UI->GetStringInput("Enter recipe name: ");
+				recipes = m_PotionShop.SearchRecipeByName(name);
+			} else if (choice == 3) {
+				std::string ingredient = m_UI->GetStringInput("Enter ingredient name: ");
+				recipes = m_PotionShop.SearchRecipeByIngredient(ingredient);
+			} else {
+				m_UI->PrintMessage("Invalid choice. Please try again.");
+				return;
+			}
+
+			m_UI->DisplayRecipes(recipes, m_PotionShop.GetStock());
+			if (recipes.empty()) return;
+
+			int recipeIdx = 0;
+			m_UI->GetInputs("Enter recipe number to craft (0 to cancel): ", recipeIdx);
+			if (recipeIdx > 0 && recipeIdx <= recipes.size()) {
+				Recipe targetRecipe = recipes[recipeIdx - 1];
+				if (m_PotionShop.CraftItem(targetRecipe, m_State->GetUser().GetInventory())) {
+					m_UI->PrintMessage("Successfully crafted: " + targetRecipe.GetName() + "!");
+				} else {
+					m_UI->PrintMessage("Crafting failed. Not enough ingredients.");
+				}
+			}
+		});
+
 
 		// 인벤토리 메인 행동 선택
 		m_UI->OnInventoryActionSelected.AddListener([this](int choice) {
@@ -200,7 +233,7 @@ namespace TextRPG
 
 		m_StateMachine.ChangeState(EGameState::GS_MAIN_MENU);
 		m_bGameOver = false;
-		while (!m_bGameOver && !m_StateMachine.IsEmpty())
+		while (!m_bGameOver)
 		{
 			switch (m_StateMachine.GetCurrentState())
 			{
@@ -218,6 +251,9 @@ namespace TextRPG
 				break;
 			case EGameState::GS_SHOP_SELL:
 				m_UI->PromptShopSellAction(m_State->GetUser().GetInventory());
+				break;
+			case EGameState::GS_SHOP_CRAFT:
+				m_UI->PromptShopCraftAction();
 				break;
 			case EGameState::GS_STAT_UPGRADE:
 				ProcessStatsUpgrade();
@@ -238,7 +274,7 @@ namespace TextRPG
 				break;
 			case EGameState::GS_BATTLE:
 				ProcessBattle();
-				m_StateMachine.PopState(); // 전투 끝나면 이전 상태(마을 등)로
+				m_StateMachine.PopState();
 				break;
 			case EGameState::GS_GAMEOVER:
 				m_bGameOver = true;
@@ -334,12 +370,21 @@ namespace TextRPG
 		_handleBaseStatDistribution();
 		m_UI->DisplayDefaultItem(_handleReceiveDefaultItem());
 
-		// 상점 초기 제고 설정
+		// 상점 초기 재고 설정
 		ItemEffects mpEffect; mpEffect.RestoreMP.Value = 50;
 		m_PotionShop.AddItemToStock(new Potion(111, "Mana Potion", mpEffect, 50, 5));
 		
 		ItemEffects hpEffect; hpEffect.RestoreHP.Value = 100;
 		m_PotionShop.AddItemToStock(new Potion(101, "Health Potion", hpEffect, 50, 10));
+
+		// ==========================================
+		// [테스트용 레시피 데이터 추가]
+		Recipe hpRecipe(1,"Health Potion", 101, 1, { {100, 2} }); // 빈 포션(100) 2개로 HP포션(101) 1개 제작
+		m_PotionShop.AddRecipe(hpRecipe);
+
+		Recipe mpRecipe(2,"Mana Potion", 111, 1, { {100, 1}, {101, 1} }); // 빈포션 1개 + HP포션 1개로 MP포션(111) 1개 제작
+		m_PotionShop.AddRecipe(mpRecipe);
+		// ==========================================
 	}
 
 	void DungeonGameMode::_handleBaseStatDistribution()

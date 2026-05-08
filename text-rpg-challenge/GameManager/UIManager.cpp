@@ -304,7 +304,7 @@ namespace TextRPG
 		int i = 1;
 		for (const auto& pair : inventory.GetAllItems())
 		{
-			PrintMessage(std::to_string(i++) + ". " + pair.second->GetName() + " +" + std::to_string(pair.second->GetCount()) + "(" + std::to_string(pair.second->GetPrice()) + "G)");
+			PrintMessage(std::to_string(i++) + ". " + pair.second->GetName() + " x" + std::to_string(pair.second->GetCount()) + " (" + std::to_string(pair.second->GetPrice()) + "G)");
 		}
 	}
 
@@ -397,9 +397,9 @@ namespace TextRPG
 
 	void UIManager::PromptTownAction()
 	{
-		PrintTitle("[ Town ]");
 		MenuConfig config;
-		config.Title = "You are in town. What would you like to do?";
+		config.Title = "[ Town ]";
+		config.Infos = { "What would you like to do?" };
 		config.Options = { "1. Job Center", "2. Potion Shop", "0. Leave Town" };
 		int choice = PromptMenu(config);
 		OnTownActionSelected.Broadcast(choice);
@@ -408,7 +408,7 @@ namespace TextRPG
 	void UIManager::PromptPotionShopAction()
 	{
 		MenuConfig config;
-		config.Title = "Potion Shop";
+		config.Title = "[ Potion Shop ]";
 		config.Options = { "1. Buy Items", "2. Sell Items", "3. Craft Items", "0. Back to Town" };
 		int choice = PromptMenu(config);
 		OnPotionShopActionSelected.Broadcast(choice);
@@ -446,6 +446,42 @@ namespace TextRPG
 		GetInputs("Enter quantity: ", count);
 		OnShopSellRequested.Broadcast(choice, count);
 	}
+
+	void UIManager::PromptShopCraftAction()
+	{
+		MenuConfig config;
+		config.Title = "[ Craft ]";
+		config.Options = { "1. Show all recipes", "2. Search by name", "3. Search by ingredient", "0. Back" };
+		int choice = PromptMenu(config);
+		OnShopCraftActionSelected.Broadcast(choice);
+	}
+
+	void UIManager::DisplayRecipes(const std::vector<Recipe>& recipes, const Inventory& stock)
+	{
+		PrintTitle("[ Recipes ]");
+		if (recipes.empty())
+		{
+			PrintMessage("No recipes found.");
+			return;
+		}
+
+		int i = 1;
+		for(const Recipe& recipe : recipes)
+		{
+			std::string ingredientList;
+			for (const auto& ingredient : recipe.GetIngredients())
+			{
+				ItemBase* item = stock.FindItem(ingredient.first);
+				std::string itemName = item ? item->GetName() : (ingredient.first == 100 ? "Empty Potion" : "Unknown Item");
+				ingredientList += itemName + " x" + std::to_string(ingredient.second) + ", ";
+			}
+			if (!ingredientList.empty())
+				ingredientList.pop_back(), ingredientList.pop_back();
+
+			PrintMessage(std::to_string(i++) + ". [" + recipe.GetName() + "] x" + std::to_string(recipe.GetResultItemCount()) + " (Requires: " + ingredientList + ")");
+		}
+	}
+
 
 	void UIManager::DisplayShopStock(const Inventory& stock, int playerGold)
 	{

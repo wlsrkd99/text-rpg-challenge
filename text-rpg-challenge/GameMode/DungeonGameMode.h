@@ -1,10 +1,9 @@
 #pragma once
-
 #include "GameModeBase.h"
+#include "../Core/StateMachine.h"
 #include "../GameManager/UIManager.h"
 #include "../Shop/PotionShop.h"
 #include "../Enums/EGameState.h"
-#include "../Utils/StateMachine.h"
 #include <functional>
 
 namespace TextRPG

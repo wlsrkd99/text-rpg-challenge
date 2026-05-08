@@ -1,10 +1,10 @@
 #pragma once
-
-#include "../Unit/Player/Player.h"
-#include "../Unit/Monster/Monster.h"
+#include "../Core/Delegate.h"
 #include "../Enums/EJobType.h"
 #include "../Enums/EBattleActionType.h"
-#include "../Utils/Delegate.h"
+#include "../Unit/Player/Player.h"
+#include "../Unit/Monster/Monster.h"
+#include "../Item/Recipe.h"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -45,6 +45,10 @@ namespace TextRPG
 		Delegate<int> OnPotionShopActionSelected;
 		Delegate<int, int> OnShopBuyRequested;
 		Delegate<int, int> OnShopSellRequested;
+		Delegate<int> OnShopCraftActionSelected;
+		Delegate<std::string> OnRecipeSearchRequested;
+		Delegate<int> OnRecipeCraftRequested;
+
 		Delegate<int> OnStatUpgradeMenuSelected;
 		Delegate<int> OnInventoryActionSelected;
 
@@ -212,17 +216,33 @@ namespace TextRPG
 #pragma region Town
 	public:
 		/**
+		 * @brief 마을에서의 행동을 선택하는 프롬프트를 띄우고 이벤트를 발생시킵니다.
+		 */
+		void PromptTownAction();
+
+		/**
 		 * @brief 전직할 직업을 선택하는 프롬프트를 띄우고 이벤트를 발생시킵니다.
 		 * @param player 출력 및 검증에 사용할 플레이어 객체
 		 */
 		void PromptJobChange(const Player& player);
 
-		void PromptTownAction();
+
+		/**
+		 * @brief 포션 상점에서의 행동을 선택하는 프롬프트를 띄우고 이벤트를 발생시킵니다.
+		 */
 		void PromptPotionShopAction();
+
 		void PromptShopBuyAction(const Inventory& stock, int playerGold);
+
 		void PromptShopSellAction(const Inventory& inventory);
 
-		void DisplayShopItemList();
+		void PromptShopCraftAction();
+
+		/**
+		 * @brief 레시피 목록을 화면에 출력합니다.
+		 * @param stock 재료 이름을 조회하기 위한 상점 인벤토리
+		 */
+		void DisplayRecipes(const std::vector<Recipe>& recipes, const Inventory& stock);
 
 		/**
 		 * @brief 상점 재고 목록과 유저 소지금 정보를 출력합니다.
@@ -232,7 +252,5 @@ namespace TextRPG
 		void DisplayShopStock(const Inventory& stock, int playerGold);
 #pragma endregion
 
-#pragma region Shop
-#pragma endregion
 	};
 }
