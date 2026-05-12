@@ -45,7 +45,7 @@ namespace TextRPG
 
 		// Town
 		Delegate<int> OnTownActionSelected;
-		Delegate<EJobType> OnJobChangeRequested;
+		Delegate<int> OnJobChangeRequested;
 		Delegate<int> OnPotionShopActionSelected;
 		Delegate<int, int> OnShopBuyRequested;
 		Delegate<int, int> OnShopSellRequested;

@@ -19,8 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Controller\BattleController.h" />
+    <ClInclude Include="Controller\DungeonController.h" />
+    <ClInclude Include="Controller\InventoryController.h" />
+    <ClInclude Include="Controller\JobController.h" />
+    <ClInclude Include="Controller\ShopController.h" />
+    <ClInclude Include="Controller\StatController.h" />
+    <ClInclude Include="Controller\TownController.h" />
     <ClInclude Include="Data\BaseStatBonus.h" />
     <ClInclude Include="Data\BattleData.h" />
+    <ClInclude Include="Data\DungeonData.h" />
     <ClInclude Include="Enums\EBattleActionType.h" />
     <ClInclude Include="Enums\EDerivedStatType.h" />
     <ClInclude Include="Enums\EGameState.h" />
@@ -39,6 +47,7 @@
     <ClInclude Include="Item\Inventory.h" />
     <ClInclude Include="Item\ItemBase.h" />
     <ClInclude Include="Item\Potion.h" />
+    <ClInclude Include="Item\Recipe.h" />
     <ClInclude Include="Shop\PotionShop.h" />
     <ClInclude Include="Shop\Shop.h" />
     <ClInclude Include="Unit\Monster\Monster.h" />
@@ -47,12 +56,21 @@
     <ClInclude Include="Unit\Character.h" />
     <ClInclude Include="Core\User.h" />
     <ClInclude Include="Unit\Skill\ISkill.h" />
-    <ClInclude Include="Utils\Delegate.h" />
+    <ClInclude Include="Core\Delegate.h" />
+    <ClInclude Include="Core\StateMachine.h" />
     <ClInclude Include="Utils\StatFormatting.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Controller\BattleController.cpp" />
+    <ClCompile Include="Controller\DungeonController.cpp" />
+    <ClCompile Include="Controller\InventoryController.cpp" />
+    <ClCompile Include="Controller\JobController.cpp" />
+    <ClCompile Include="Controller\ShopController.cpp" />
+    <ClCompile Include="Controller\StatController.cpp" />
+    <ClCompile Include="Controller\TownController.cpp" />
     <ClCompile Include="Data\JobData.cpp" />
     <ClCompile Include="Data\StatData.cpp" />
+    <ClCompile Include="Data\DungeonData.cpp" />
     <ClCompile Include="GameState\DungeonGameState.cpp" />
     <ClCompile Include="GameMode\DungeonGameMode.cpp" />
     <ClCompile Include="main.cpp" />
@@ -62,6 +80,7 @@
     <ClCompile Include="Item\Inventory.cpp" />
     <ClCompile Include="Item\ItemBase.cpp" />
     <ClCompile Include="Item\Potion.cpp" />
+    <ClCompile Include="Item\Recipe.cpp" />
     <ClCompile Include="Shop\PotionShop.cpp" />
     <ClCompile Include="Shop\Shop.cpp" />
     <ClCompile Include="Unit\Monster\Monster.cpp" />

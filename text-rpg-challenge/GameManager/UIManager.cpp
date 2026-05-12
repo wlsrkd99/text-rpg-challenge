@@ -419,12 +419,6 @@ namespace TextRPG
 #pragma region Town
 	void UIManager::PromptJobChange(const Player& player)
 	{
-		if (player.GetJob() != EJobType::JT_NOVICE)
-		{
-			PrintMessage("You already have a job.");
-			return;
-		}
-
 		MenuConfig config;
 		config.Title = "Job Selection";
 		config.Infos = { player.GetName() + ", choose your job!" };
@@ -432,17 +426,10 @@ namespace TextRPG
 		{
 			config.Options.push_back(std::to_string(i) + ". " + GetJobName(static_cast<EJobType>(i)));
 		}
+		config.Options.push_back("0. Back");
 
 		int choice = PromptMenu(config);
-
-		if (choice < static_cast<int>(EJobType::JT_WARRIOR) || choice >= static_cast<int>(EJobType::JT_MAX))
-		{
-			PrintMessage("Invalid choice. You remain a Novice for now.");
-			return;
-		}
-
-		EJobType selectedJob = static_cast<EJobType>(choice);
-		OnJobChangeRequested.Broadcast(selectedJob);
+		OnJobChangeRequested.Broadcast(choice);
 	}
 
 	void UIManager::PromptTownAction()
