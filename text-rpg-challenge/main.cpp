@@ -8,11 +8,10 @@ int main()
 {
     using namespace TextRPG;
 
-    UIManager uiManager;
     DungeonGameState dungeonGameState;
     DungeonGameMode dungeonGameMode;
 
-    dungeonGameMode.Setup(&dungeonGameState, &uiManager);
+    dungeonGameMode.Setup(&dungeonGameState, &UIManager::GetInstance());
     dungeonGameMode.Run();
 
     return 0;

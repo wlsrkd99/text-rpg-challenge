@@ -26,6 +26,7 @@
     <ClInclude Include="Controller\ShopController.h" />
     <ClInclude Include="Controller\StatController.h" />
     <ClInclude Include="Controller\TownController.h" />
+    <ClInclude Include="Core\Singleton.h" />
     <ClInclude Include="Data\BaseStatBonus.h" />
     <ClInclude Include="Data\BattleData.h" />
     <ClInclude Include="Data\DungeonData.h" />
@@ -39,6 +40,7 @@
     <ClInclude Include="Enums\EStatType.h" />
     <ClInclude Include="Data\JobData.h" />
     <ClInclude Include="Data\StatData.h" />
+    <ClInclude Include="GameManager\DataManager.h" />
     <ClInclude Include="GameState\DungeonGameState.h" />
     <ClInclude Include="GameMode\DungeonGameMode.h" />
     <ClInclude Include="GameMode\GameModeBase.h" />

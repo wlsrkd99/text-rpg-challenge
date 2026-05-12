@@ -12,6 +12,7 @@
 #include <functional>
 #include <utility>
 #include "../Data/DungeonData.h"
+#include "../Core/Singleton.h"
 
 namespace TextRPG
 {
@@ -26,12 +27,15 @@ namespace TextRPG
 	struct AttackResult;
 	class Inventory;
 
-	class UIManager
+	class UIManager : public Singleton<UIManager>
 	{
+	friend class Singleton<UIManager>;
+
+	private:
+		UIManager() = default;
+		virtual ~UIManager() = default;
 
 	public:
-		UIManager() {};
-
 		// Main Menu
 		Delegate<int> OnMenuNavigationRequested;
 
