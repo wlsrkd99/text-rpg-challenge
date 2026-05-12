@@ -45,28 +45,29 @@ namespace TextRPG
 
 		if (bIsBoss)
 		{
-			stats[static_cast<int>(EStatType::ST_Health)] = 200; // Ã¼·Â
-			stats[static_cast<int>(EStatType::ST_Strength)] = 60; // °ø°İ·Â ¿µÇâ
-			stats[static_cast<int>(EStatType::ST_Endurance)] = 20; // ¹æ¾î·Â ¿µÇâ
+			stats[static_cast<int>(EStatType::ST_Health)] = 100; // ì²´ë ¥
+			stats[static_cast<int>(EStatType::ST_Strength)] = 20; // ê³µê²©ë ¥ ì˜í–¥
+			stats[static_cast<int>(EStatType::ST_Endurance)] = 20; // ë°©ì–´ë ¥ ì˜í–¥
 
 			newMonster->Initialize("Dragon", stats);
-			newMonster->SetDropExp(500);
+			newMonster->SetDropExp(100);
 			newMonster->SetDropGold(300);
-			// º¸½º Àü¿ë µå¶ø ¾ÆÀÌÅÛ ¼¼ÆÃ µî...
+
+			// ë³´ìŠ¤ ì „ìš© ë“œë ì•„ì´í…œ ì„¸íŒ… ë“±...
 			return newMonster;
 		}
 
-		// ÀÏ¹İ ¸ó½ºÅÍ ·£´ı »ı¼º (1 ~ 3)
+		// ì¼ë°˜ ëª¬ìŠ¤í„° ëœë¤ ìƒì„± (1 ~ 3)
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_int_distribution<int> dist(1, 3);
 
-		int randType = 1;//dist(gen);
+		int randType = dist(gen);
 		switch (randType)
 		{
 		case 1:
 			stats[static_cast<int>(EStatType::ST_Health)] = 30;
-			stats[static_cast<int>(EStatType::ST_Strength)] = 15;
+			stats[static_cast<int>(EStatType::ST_Strength)] = 5;
 			newMonster->Initialize("Slime", stats);
 			newMonster->SetDropExp(50);
 			newMonster->SetDropGold(15);
@@ -74,14 +75,14 @@ namespace TextRPG
 			break;
 		case 2:
 			stats[static_cast<int>(EStatType::ST_Health)] = 50;
-			stats[static_cast<int>(EStatType::ST_Strength)] = 25;
+			stats[static_cast<int>(EStatType::ST_Strength)] = 10;
 			newMonster->Initialize("Goblin", stats);
 			newMonster->SetDropExp(80);
 			newMonster->SetDropGold(30);
 			break;
 		case 3:
 			stats[static_cast<int>(EStatType::ST_Health)] = 80;
-			stats[static_cast<int>(EStatType::ST_Strength)] = 35;
+			stats[static_cast<int>(EStatType::ST_Strength)] = 15;
 			newMonster->Initialize("Orc", stats);
 			newMonster->SetDropExp(120);
 			newMonster->SetDropGold(50);

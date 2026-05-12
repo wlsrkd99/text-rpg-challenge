@@ -311,7 +311,7 @@ namespace TextRPG
 	{
 		if (!m_CurrentRoom || !m_CurrentRoom->RoomMonster) return;
 
-		Monster* monster = m_CurrentRoom->RoomMonster; // 몬스터 객체를 복사하는 대신 포인터를 직접 사용
+		Monster* monster = m_CurrentRoom->RoomMonster;
 
 		Player* player = m_State->GetPlayer();
 		m_UI->PrintTitle("[ Battle Start! ] " + player->GetName() + " vs " + monster->GetName());
@@ -327,7 +327,7 @@ namespace TextRPG
 				m_UI->PromptBattleAction();
 				if (!m_bPlayerTurnConsumed) continue;
 
-				if (monster->GetCurrentHP() <= 0) // 포인터를 통해 원본 몬스터의 체력에 접근
+				if (monster->GetCurrentHP() <= 0)
 				{
 					m_UI->PrintMessage(monster->GetName() + " has been defeated!");
 
@@ -335,7 +335,7 @@ namespace TextRPG
 					BattleWinData winData;
 					winData.EarnedExp = monster->GetDropExp();
 					winData.EarnedGold = monster->GetDropGold();
-					if (monster->GetDropItem() != nullptr) // ReleaseDropItem도 원본 몬스터에 대해 호출
+					if (monster->GetDropItem() != nullptr)
 					{
 						winData.Rewards.push_back(monster->ReleaseDropItem());
 					}
@@ -358,7 +358,7 @@ namespace TextRPG
 			{
 				m_UI->PrintMessage("");
 				m_UI->PrintMessage("--- Monster Turn ---");
-				m_UI->DisplayAttackResult(monster->Attack(*player)); // 포인터를 통해 원본 몬스터의 공격 함수 호출
+				m_UI->DisplayAttackResult(monster->Attack(*player));
 
 				if(player->GetCurrentHP() <= 0)
 				{

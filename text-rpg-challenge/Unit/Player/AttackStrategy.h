@@ -7,7 +7,6 @@
 
 namespace TextRPG
 {
-
 	// 공격 전략 인터페이스
 	class IAttackStrategy
 	{

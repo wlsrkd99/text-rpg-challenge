@@ -38,6 +38,8 @@ namespace TextRPG
 
 		if (inven.SpendMoney(item->GetPrice() * count))
 		{
+			item->SetCount(item->GetCount() - count);
+
 			ItemBase* cloned = item->Clone();
 			cloned->SetCount(count);
 			inven.AddItem(cloned);

@@ -1,12 +1,11 @@
 #include "Inventory.h"
 #include "ItemBase.h"
-#include <iostream>
 
 namespace TextRPG
 {
 	Inventory::~Inventory()
 	{
-		for (auto const& pair : m_Items)
+		for (auto pair : m_Items)
 		{
 			delete pair.second;
 		}
@@ -15,7 +14,7 @@ namespace TextRPG
 
 	bool Inventory::SpendMoney(int amount)
 	{
-		if(m_Gold >= amount)
+		if (m_Gold >= amount)
 		{
 			m_Gold -= amount;
 			return true;
@@ -23,19 +22,20 @@ namespace TextRPG
 		return false;
 	}
 
-	void Inventory::AddItem(ItemBase* newItem)
-	{
-		if (!newItem) return;
 
-		auto it = m_Items.find(newItem->GetID());
+	void Inventory::AddItem(ItemBase* item)
+	{
+		if (item == nullptr) return;
+
+		auto it = m_Items.find(item->GetID());
 		if (it != m_Items.end())
 		{
-			it->second->AddCount(newItem->GetCount());
-			delete newItem;
+			it->second->SetCount(it->second->GetCount() + item->GetCount());
+			delete item;
 		}
 		else
 		{
-			m_Items[newItem->GetID()] = newItem;
+			m_Items[item->GetID()] = item;
 		}
 	}
 	void Inventory::AddItem(int itemID, int count)
@@ -43,26 +43,29 @@ namespace TextRPG
 		auto it = m_Items.find(itemID);
 		if (it != m_Items.end())
 		{
-			it->second->AddCount(count);
-		}
-		else
-		{
-			std::cout << "Error: Item ID " << itemID << " not found in inventory. Cannot add." << std::endl;
+			it->second->SetCount(it->second->GetCount() + count);
 		}
 	}
 
-	bool Inventory::RemoveItem(int itemID, int count=1)
+	bool Inventory::RemoveItem(int itemID, int count)
 	{
 		auto it = m_Items.find(itemID);
-		if (it == m_Items.end() || it->second->GetCount() < count)
+		if (it == m_Items.end())
 		{
-			return false; // 아이템이 없거나 개수가 부족합니다.
+			return false;
 		}
 
-		it->second->AddCount(-count);
-		if (it->second->GetCount() <= 0)
+		ItemBase* item = it->second;
+		if (item->GetCount() < count)
 		{
-			delete it->second;
+			return false;
+		}
+
+		item->SetCount(item->GetCount() - count);
+
+		if (item->GetCount() <= 0)
+		{
+			delete item;
 			m_Items.erase(it);
 		}
 		return true;
@@ -71,12 +74,20 @@ namespace TextRPG
 	int Inventory::GetItemCount(int itemID) const
 	{
 		auto it = m_Items.find(itemID);
-		return (it != m_Items.end()) ? it->second->GetCount() : 0;
+		if (it != m_Items.end())
+		{
+			return it->second->GetCount();
+		}
+		return 0;
 	}
 
 	ItemBase* Inventory::FindItem(int itemID) const
 	{
 		auto it = m_Items.find(itemID);
-		return (it != m_Items.end()) ? it->second : nullptr;
+		if (it != m_Items.end())
+		{
+			return it->second;
+		}
+		return nullptr;
 	}
 }
